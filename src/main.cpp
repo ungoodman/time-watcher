@@ -4,11 +4,10 @@
 #include <I2CKeyPad.h>
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
-I2CKeyPad keypad(0x38);
+I2CKeyPad keypad(0x20);
 
-// char keymap[19] = "123A456B789C*0#DNF";
-
-uint32_t period;
+uint32_t period_lcd;
+uint32_t period_time;
 int second;
 
 void setup() {
@@ -26,18 +25,24 @@ void setup() {
 }
 
 void loop() {
-    lcd.clear();
-
     if (keypad.isPressed())
     {
+        lcd.clear();
         lcd.printstr("Hello, World!");
     }
 
-    if ((millis() - period > 1000) && (!keypad.isPressed()))
+    if (millis() - period_time > 1000)
     {
-        lcd.print("Time: " + String(second));
-
         second++;
-        period = millis();
+
+        period_time = millis();
+    }
+
+    if ((millis() - period_lcd > 1000) && (!keypad.isPressed()))
+    {
+        lcd.clear();
+        lcd.print("Time: " + String(second, DEC));
+
+        period_lcd = millis();
     }
 }
