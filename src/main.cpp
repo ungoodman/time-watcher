@@ -28,18 +28,23 @@ char  getkeypadPressed() {
     } else { 
         return ' ';
     }
-}     
+}
+
+/*
+    // ตัวอย่างการเขียน function ด้านบนแบบ clean code
+    char getKeypadPressed() {
+        // ถ้า keypad ถูกกด ทำใน if
+        if (keypad.isPressed()) {
+            return keypad.getChar();
+        }
+
+        // ถ้า keypad ไม่ถูกกด ทำนอก if (มีค่าเท่ากับการใช้ else ใช้ได้กับเงื่อนไข boolean เท่านั้น)
+        return ' ';
+    }
+*/   
 
 void loop()
 {  
       char re = getkeypadPressed();
 
 }
-
-    
-        
-        
-    
-
-
-
