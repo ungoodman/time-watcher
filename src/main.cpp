@@ -38,46 +38,6 @@ char getkeypadPressed()
     }
 }
 
-char getkeypadPressed_A() {
-  if (keypad.isPressed())
-  {
-        char A = 'A';
-        lcd.print("TANGZA"); 
-        return  A;
-    } 
-    else 
-    {
-        return ' ';  
-    }
-}
-
-char getkeypadPressed_B() {
-  if (keypad.isPressed())
-  {
-        char B = 'B';
-        lcd.print("GO"); 
-        return  B;
-    } 
-    else 
-    {
-        return ' ';  
-    }
-}
-
-char getkeypadPressed_C() {
-  if (keypad.isPressed())
-  {
-        char C = 'C';
-        lcd.print("TA"); 
-        return  C;
-    } 
-    else 
-    {
-        return ' ';  
-    }
-}
-
-
 bool flaggetkey = false;
 
 void loop()
@@ -85,29 +45,22 @@ void loop()
     if (millis() % 100 == 0)
     {
         char re = getkeypadPressed();
-        char A  = getkeypadPressed_A();
-        char B  = getkeypadPressed_B();
-        char C  = getkeypadPressed_C();
-
-
-        if (flaggetkey == false && re != ' ')
+        if (re == 'A')
         {
-
-            flaggetkey = true;
             lcd.clear();
-            lcd.print(re);
-            lcd.print(A);
-            lcd.print(B);
-            lcd.print(C);
-            Serial.println(re);
-            Serial.println(A);
-            Serial.println(B);
-            Serial.println(C);
+            lcd.print("TANG");  
         }
-        if (flaggetkey == true && !keypad.isPressed())
+        if (re == 'B')
         {
-            flaggetkey = false;
+            lcd.clear();
+            lcd.print("GO");
         }
+        if (re == 'C')
+        {
+            lcd.clear();
+            lcd.print("TiME");
+        }
+            
     }
-}   
+    }
 
