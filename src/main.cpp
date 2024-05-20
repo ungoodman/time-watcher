@@ -86,6 +86,8 @@ void loop()
 
         lcd.setCursor(0, 1);
         lcd.print(inputTime);
+
+        Serial.println("LCD Display: " + inputTime);
     }
 
     // char re = getkeypadPressed();
