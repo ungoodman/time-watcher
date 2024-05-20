@@ -30,21 +30,88 @@ char  getkeypadPressed() {
     }
 }
 
-/*
-    // ตัวอย่างการเขียน function ด้านบนแบบ clean code
-    char getKeypadPressed() {
-        // ถ้า keypad ถูกกด ทำใน if
-        if (keypad.isPressed()) {
-            return keypad.getChar();
-        }
-
-        // ถ้า keypad ไม่ถูกกด ทำนอก if (มีค่าเท่ากับการใช้ else ใช้ได้กับเงื่อนไข boolean เท่านั้น)
-        return ' ';
-    }
-*/   
+String lastestValue;                                          //  ตัวแปร  ค่าล่าสุด
+bool lockKeypad;                                              //   ตัวแปร  ล็อคปุ่มกด  
 
 void loop()
-{  
-      char re = getkeypadPressed();
+{
+    if (keypad.isPressed() && !lockKeypad)                    // ถ้า กดปุม่ keypad และ ไม่ล็อคปุ่มกด     
+    {
+        char keypadValue = keypad.getChar();                  // เก็บรับค่าตัวเลขจาก keypad  
+        Serial.println("Input from Keypad: " + keypadValue);  // แสดงผลลัพ  "Input from Keypad:
 
+        lockKeypad = true;                                    // ล็อคปุ่มกด เท่ากับ กด
+        Serial.println("Keypad Lock: " + String(lockKeypad)); 
+        
+        if (keypadValue == '#')                               // ถ้ารับค่า ตัวเลขจาก keypad  = #
+        {
+             ('#' == true)
+
+
+        }
+        else if (keypadValue == '*')                          //  แล้วถ้ารับค่า ตัวเลขจาก keypad  = *
+        {
+            ('*' == true)
+            lcd.clear();
+            lcd.print("Time ");
+        }
+        else if (keypadValue >= '0' && keypadValue <= '9')    //  แล้วถ้าค่าที่รับจากตัวเลขจาก keypad มากกว่าหรือเท่ากับ 0 และ ค่าที่รับจากตัวเลขจาก keypad น้อยกว่า 9 
+        {
+            lastestValue = inputTime;                         //  ค่าล่าสุด เท่ากับ  รับข้อมูลค่าเวลา 
+            inputTime.concat(keypadValue);                    //  รับข้อมูลค่าเวลาที่เชื่อมต่อใน ตัวเลขจาก keypad
+        }
+        else
+        {
+            Serial.println("Menu: " + keypadValue);           //  แสดงผลลัพธิ์ "Menu: " กับ ค่าตัวเลขจาก keypad
+        }
+    }
+
+    if (!keypad.isPressed() && lockKeypad)                    //  ถ้า ไม่ได้กดปุ่ม และ ล็อคปุ่มกด
+    {
+        lockKeypad = false;                                   //  ล็อคปุ่มกด เท่ากับ  ไม่ได้กด
+        Serial.println("Keypad Lock: " + String(lockKeypad)); //  แสดงผลลัพธิ์  "Keypad Lock: " และ ค่าล็อคปุ่มกด 
+    }
+
+    if (millis() % 100 == 0 && inputTime != lastestValue)     //  ถ้าวินาที และ  ไม่ได้รับค่าเวลาล่าสุด
+    {
+        lcd.clear();
+
+        lcd.home();
+        lcd.print("Set Time "+(inputTime));                   //  lcd แสดงผลลัพธิ์   Set  Time  และ  รับข้อมูลค่าเวลา
+
+        lcd.setCursor(0, 1);
+       
+
+        Serial.println("LCD Display: " + inputTime); 
+    }
+}
+
+    // char re = getkeypadPressed();
+
+    // if (re)
+    // {
+    //     if (re == '#')
+    //     {
+    //         lcd.clear();
+    //         lcd.setCursor(0, 0);
+    //         lcd.print("Time:");
+    //         lcd.setCursor(0, 1);
+    //         lcd.print(inputTime);
+    //         inputTime = "";
+    //     }
+    //     else if (re == '*')
+    //     {
+    //         inputTime = "";
+    //         lcd.clear();
+    //         lcd.setCursor(0, 0);
+    //         lcd.print("Enter Time:");
+    //         lcd.setCursor(0, 1);
+    //     }
+    //     else
+    //     {
+    //         inputTime += re;
+    //         lcd.setCursor(0, 1);
+    //         lcd.print(inputTime);
+    //     }
+    // }
 }
