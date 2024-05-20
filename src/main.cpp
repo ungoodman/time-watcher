@@ -84,5 +84,7 @@ void loop()
         lcd.print(inputTime);
 
         Serial.println("LCD Display: " + String(inputTime));
+
+        lastestValue = inputTimeLength;
     }
 }
