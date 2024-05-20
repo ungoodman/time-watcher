@@ -50,14 +50,18 @@ char getkeypadPressed()
 }
 
 String lastestValue;
+bool lockKeypad;
 
 void loop()
 {
-    if (keypad.isPressed())
+    if (keypad.isPressed() && !lockKeypad)
     {
         char keypadValue = keypad.getChar();
         Serial.println("Input from Keypad: " + keypadValue);
 
+        lockKeypad = true;
+        Serial.println("Keypad Lock: " + String(lockKeypad));
+        
         if (keypadValue == '#')
         {
             /* code */
@@ -69,12 +73,18 @@ void loop()
         else if (keypadValue >= '0' && keypadValue <= '9')
         {
             lastestValue = inputTime;
-            inputTime += keypadValue;
+            inputTime.concat(keypadValue);
         }
         else
         {
             Serial.println("Menu: " + keypadValue);
         }
+    }
+
+    if (!keypad.isPressed() && lockKeypad)
+    {
+        lockKeypad = false;
+        Serial.println("Keypad Lock: " + String(lockKeypad));
     }
 
     if (millis() % 100 == 0 && inputTime != lastestValue)
