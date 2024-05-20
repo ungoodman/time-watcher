@@ -57,6 +57,13 @@ void loop()
         }
         else if (keypadValue >= '0' && keypadValue <= '9')
         {
+            if (sizeof(inputTime) >= 6)
+            {
+                inputTimeLength = 0;
+                lastestValue = inputTimeLength;
+                memset(inputTime, '\0', sizeof(inputTime));
+            }
+            
             lastestValue = inputTimeLength;
             inputTime[inputTimeLength] = keypadValue;
             inputTimeLength++;
