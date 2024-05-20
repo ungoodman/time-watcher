@@ -28,8 +28,7 @@ void setup() {                           // เริ่มต้นการท
             ; //  เป็นคำสั่งทำซํ้าตลอดไปไม่หยุด
     }
       
-  keypad.begin();                         // เริ่มต้นการทำงานของ Keypad
-  keypad.loadKeyMap(keymap);              //  เป็นการตั้งค่า layout ของ keypad เป็นการดึงค่าจาก keymap มา
+     keypad.loadKeyMap(keymap);          //  เป็นการตั้งค่า layout ของ keypad เป็นการดึงค่าจาก keymap มา
 }
 
 char getkeypadPressed()
@@ -43,7 +42,7 @@ char getkeypadPressed()
     {
         return ' ';
     }
-
+}
 void loop() {
   char re = getkeypadPressed();
   
