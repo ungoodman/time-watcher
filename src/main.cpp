@@ -91,7 +91,7 @@ void loop()
     {
         lcd.clear();
 
-        lcd.setCursor(0, 0);
+        lcd.home();
         lcd.print("   Set  Time   ");
 
         lcd.setCursor(0, 1);
