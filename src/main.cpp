@@ -22,6 +22,8 @@ void setup()
 
 void loop()
 {
+    keypad.isPressed();
+    
     if (millis() % 1000 == 0)
     {
         inputTime++;
