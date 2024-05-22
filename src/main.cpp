@@ -53,7 +53,7 @@ void loop()
         }
         else if (keypadValue >= '0' && keypadValue <= '9')
         {
-            if (sizeof(inputTime) >= 6)
+            if (inputTime.length() >= 6)
             {
                 inputTime = "";
             }
