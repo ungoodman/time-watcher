@@ -10,6 +10,7 @@ char keymap[19] = "123A456B789C*0#DNF";         //  เป็นคำสั่�
 
                                                 // สร้างออบเจ็ค Keypad_I2C
 String inputTime = "";                           //  ตัวแปร  ค่าล่าสุด
+String latestValue = "";
 bool lockKeypad;                                 //  ตัวแปร  ล็อคปุ่มกด
 
 void setup()
@@ -72,7 +73,7 @@ void loop()
         Serial.println("Keypad Lock: " + String(lockKeypad));
     }
 
-    if (millis() % 250 == 0)
+    if (millis() % 250 == 0 && latestValue != inputTime)
     {
         lcd.clear();
 
@@ -83,5 +84,7 @@ void loop()
         lcd.print(inputTime);
 
         Serial.println("LCD Display: " + inputTime);
+
+        latestValue = inputTime;
     }
 }
