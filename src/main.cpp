@@ -9,10 +9,8 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);             //  เป็นการตั�
 char keymap[19] = "123A456B789C*0#DNF";         //  เป็นคำสั่งใช้ตัวแปร char โดยชื่อ keymap เป็นตัวเก็บจำนวนไว้ที่ตัวแปร ของ array
 
                                                 // สร้างออบเจ็ค Keypad_I2C
-char inputTime[6] = "";
-int lastestValue;                             //  ตัวแปร  ค่าล่าสุด
-bool lockKeypad;                                 //  ตัวแปร  ล็อคปุ่มกด  
-int inputTimeLength = 0;
+String inputTime = "";                           //  ตัวแปร  ค่าล่าสุด
+bool lockKeypad;                                 //  ตัวแปร  ล็อคปุ่มกด
 
 void setup()
 {                                              // เริ่มต้นการทำงานของ I2C
@@ -51,22 +49,16 @@ void loop()
         }
         else if (keypadValue == '*')
         {
-            inputTimeLength = 0;
-            lastestValue = inputTimeLength;
-            memset(inputTime, '\0', sizeof(inputTime));
+            inputTime = "";
         }
         else if (keypadValue >= '0' && keypadValue <= '9')
         {
-            if (inputTimeLength >= 6)
+            if (sizeof(inputTime) >= 6)
             {
-                inputTimeLength = 0;
-                lastestValue = inputTimeLength;
-                memset(inputTime, '\0', sizeof(inputTime));
+                inputTime = "";
             }
-            
-            lastestValue = inputTimeLength;
-            inputTime[inputTimeLength] = keypadValue;
-            inputTimeLength++;
+
+            inputTime += keypadValue;
         }
         else
         {
@@ -80,7 +72,7 @@ void loop()
         Serial.println("Keypad Lock: " + String(lockKeypad));
     }
 
-    if (millis() % 100 == 0 && inputTimeLength != lastestValue)
+    if (millis() % 250 == 0)
     {
         lcd.clear();
 
@@ -90,8 +82,6 @@ void loop()
         lcd.setCursor(0, 1);
         lcd.print(inputTime);
 
-        Serial.println("LCD Display: " + String(inputTime));
-
-        lastestValue = inputTimeLength;
+        Serial.println("LCD Display: " + inputTime);
     }
 }
