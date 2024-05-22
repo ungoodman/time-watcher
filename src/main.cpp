@@ -35,43 +35,48 @@ void setup()
 
 void loop()
 {
-    if (keypad.isPressed() && !lockKeypad)              
+    if (millis() % 100 == 0)
     {
-        char keypadValue = keypad.getChar();
+        if (keypad.isPressed() && !lockKeypad)              
+        {
+            char keypadValue = keypad.getChar();
 
-        String inputFromKeypad = "Input from Keypad: ";
-        Serial.println(inputFromKeypad.concat(keypadValue));
+            String inputFromKeypad = "Input from Keypad: ";
+            Serial.println(inputFromKeypad.concat(keypadValue));
 
-        lockKeypad = true;
-        Serial.println("Keypad Lock: " + String(lockKeypad));
-        
-        if (keypadValue == '#')
-        {
-        }
-        else if (keypadValue == '*')
-        {
-            inputTime = "";
-        }
-        else if (keypadValue >= '0' && keypadValue <= '9')
-        {
-            if (inputTime.length() >= 6)
+            lockKeypad = true;
+            Serial.println("Keypad Lock: " + String(lockKeypad));
+            
+            if (keypadValue == '#')
+            {
+            }
+            else if (keypadValue == '*')
             {
                 inputTime = "";
             }
+            else if (keypadValue >= '0' && keypadValue <= '9')
+            {
+                if (inputTime.length() >= 6)
+                {
+                    inputTime = "";
+                }
 
-            inputTime += keypadValue;
+                inputTime += keypadValue;
+            }
+            else
+            {
+                Serial.println("Menu: " + keypadValue);
+            }
         }
-        else
+    
+        if (!keypad.isPressed() && lockKeypad)
         {
-            Serial.println("Menu: " + keypadValue);
+            lockKeypad = false;
+            Serial.println("Keypad Lock: " + String(lockKeypad));
         }
     }
+    
 
-    if (!keypad.isPressed() && lockKeypad)
-    {
-        lockKeypad = false;
-        Serial.println("Keypad Lock: " + String(lockKeypad));
-    }
 
     if (millis() % 250 == 0 && latestValue != inputTime)
     {
