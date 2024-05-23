@@ -2,6 +2,8 @@
 #include <LiquidCrystal_I2C.h>                 //   เป็นคำสั่งเรียกใช้ Libary ของ lcd i2c 
 #include <I2CKeyPad.h>                         //   เป็นคำสั่งเรียกใช้ libary keypad i2c
 #include <Keypad.h>
+#include <Arduino_FreeRTOS.h>
+
 
 I2CKeyPad keypad(0x20);                         //  เป็นคำสั่งเก็บค่า address ของ keypad address = 0x20
 LiquidCrystal_I2C lcd(0x27, 16, 2);             //  เป็นการตั้งค่า ของจอ Lcd (0*27 คือขนาดของจอ,16 ตัวอักษร ,2 บรรทัด)
