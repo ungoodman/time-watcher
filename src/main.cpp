@@ -14,6 +14,9 @@ char keymap[19] = "123A456B789C*0#DNF";         //  เป็นคำสั่�
 String inputTime = "";                           //  ตัวแปร  ค่าล่าสุด
 String latestValue = "";
 bool lockKeypad;                                 //  ตัวแปร  ล็อคปุ่มกด
+int  menu;
+
+
 
 void setup()
 {                                              // เริ่มต้นการทำงานของ I2C
@@ -25,6 +28,8 @@ void setup()
     lcd.backlight();
 
     Serial.begin(115200);
+     xTaskCreate(keypadTask, "keypad Task", 128, NULL, 1,NULL);
+     xTaskCreate(lcdTask,    " lcdTask", 128, NULL, 1,NULL );
 
     if (!keypad.begin())                 //  ถ้า (keypad.begin เป็นการตรวจสอบว่าสื่อสารกันได้) keypad เป็น เท็จ
     {
@@ -35,11 +40,11 @@ void setup()
     keypad.loadKeyMap(keymap);                   //  เป็นการตั้งค่า layout ของ keypad เป็นการดึงค่าจาก keymap มา
 }
 
-void loop()
+ void keypadTask(void *pvParameters)
 {
-    if (millis() % 100 == 0)
-    {
-        if (keypad.isPressed() && !lockKeypad)              
+  while (1)
+  {
+    if (keypad.isPressed() && !lockKeypad)       
         {
             char keypadValue = keypad.getChar();
 
@@ -56,6 +61,15 @@ void loop()
             {
                 inputTime = "";
             }
+            else if (keypadValue == 'A')
+            {
+                 menu = 1;
+                 
+            }
+             else if (keypadValue == 'B')
+            {
+                 menu = 2;
+            }
             else if (keypadValue >= '0' && keypadValue <= '9')
             {
                 if (inputTime.length() >= 6)
@@ -64,23 +78,17 @@ void loop()
                 }
 
                 inputTime += keypadValue;
-            }
-            else
-            {
-                Serial.println("Menu: " + keypadValue);
+                
             }
         }
-    
-        if (!keypad.isPressed() && lockKeypad)
-        {
-            lockKeypad = false;
-            Serial.println("Keypad Lock: " + String(lockKeypad));
-        }
-    }
-    
-
-
-    if (millis() % 250 == 0 && latestValue != inputTime)
+        vTaskDelay(20);
+   }
+  }
+void lcdTask(void *pvParameters)
+{
+  while (1)
+  {
+    if (latestValue != inputTime)
     {
         lcd.clear();
 
@@ -89,9 +97,22 @@ void loop()
 
         lcd.setCursor(0, 1);
         lcd.print(inputTime);
-
+        if (menu == 1) 
+        {
+        lcd.print("Timer ");
+        }
+        if (menu == 2) 
+        {
+        lcd.print("real Time");
+        } 
         Serial.println("LCD Display: " + inputTime);
 
         latestValue = inputTime;
     }
+    vTaskDelay(20);
 }
+    }
+  
+ void loop() {
+
+ }
