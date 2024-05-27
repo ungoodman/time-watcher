@@ -103,6 +103,10 @@ void loop()
             {
                 lcd.print("real Time " + inputTime);
             }
+
+            Serial.println("LCD Display: " + inputTime);
+
+            latestValue = inputTime;
         }
 
         if (menu == 3)
@@ -118,9 +122,5 @@ void loop()
                 lcd.print("RUN");
             }
         }
-
-        Serial.println("LCD Display: " + inputTime);
-
-        latestValue = inputTime;
     }
 }
