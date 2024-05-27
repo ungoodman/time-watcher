@@ -28,95 +28,132 @@ void setup()
     keypad.loadKeyMap(keymap); //  เป็นการตั้งค่า layout ของ keypad เป็นการดึงค่าจาก keymap มา
 }
 
+void selectMenu(char buttonValue)
+{
+    if (buttonValue < 'A' || buttonValue > 'C')
+    {
+        return;
+    }
+
+    switch (buttonValue)
+    {
+    case 'A':
+    {
+        menu = 1;
+        return;
+    }
+    case 'B':
+    {
+        menu = 2;
+        return;
+    }
+    case 'C':
+    {
+        menu = 3;
+        pass = !pass;
+        inputTime = String(pass);
+        return;
+    }
+    default:
+        break;
+    }
+}
+
+void checkNumberValue(char buttonValue)
+{
+    if (buttonValue < '0' || buttonValue > '9' || menu < 0 || menu > 2)
+        return;
+
+    if (inputTime.length() >= 6)
+    {
+        inputTime = "";
+    }
+
+    inputTime += buttonValue;
+}
+
+void checkConfirm(char buttonValue)
+{
+    if (buttonValue != '#' && buttonValue != '*')
+        return;
+
+    if (buttonValue == '#')
+    {
+        return;
+    }
+
+    if (buttonValue == '*')
+    {
+        inputTime = "";
+    }
+}
+
+void showMenu()
+{
+    if (latestValue == inputTime)
+        return;
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+
+    switch (menu)
+    {
+    case 0:
+        lcd.print(" Set Time  ");
+        lcd.setCursor(0, 1);
+        lcd.print(inputTime);
+        return;
+    case 1:
+        lcd.print("Timer  " + inputTime);
+        return;
+    case 2:
+        lcd.print("real Time " + inputTime);
+        return;
+    case 3:
+        if (pass)
+        {
+            lcd.print("STOP");
+            return;
+        }
+
+        lcd.print("RUN");
+        return;
+    default:
+        break;
+    }
+
+    Serial.println("LCD Display: " + inputTime);
+
+    latestValue = inputTime;
+}
+
 void loop()
 {
-    if (millis() % 100 == 0)
+    if (millis() % 250 == 0)
     {
-        if (keypad.isPressed() && !lockKeypad)
+        bool pressed = keypad.isPressed();
+
+        if (pressed && !lockKeypad)
         {
             char keypadValue = keypad.getChar();
-            String inputFromKeypad = "Input from Keypad: ";
-            Serial.println(inputFromKeypad.concat(keypadValue));
+
             lockKeypad = true;
             Serial.println("Keypad Lock: " + String(lockKeypad));
 
-            if (keypadValue == '#')
-            {
-            }
-            else if (keypadValue == '*')
-            {
-                inputTime = "";
-            }
-            else if (keypadValue == 'A')
-            {
-                menu = 1;
-            }
-            else if (keypadValue == 'B')
-            {
-                menu = 2;
-            }
-            else if (keypadValue == 'C')
-            {
-                menu = 3;
-                pass = !pass;
-
-                inputTime = String(pass);
-            }
-
-            else if (keypadValue >= '0' && keypadValue <= '9')
-            {
-                if (inputTime.length() >= 6)
-                {
-                    inputTime = "";
-                }
-                inputTime += keypadValue;
-            }
-            else
-            {
-                Serial.println("Menu: " + keypadValue);
-            }
+            selectMenu(keypadValue);
+            checkNumberValue(keypadValue);
+            checkConfirm(keypadValue);
         }
 
-        if (!keypad.isPressed() && lockKeypad)
+        if (!pressed && lockKeypad)
         {
             lockKeypad = false;
             Serial.println("Keypad Lock: " + String(lockKeypad));
         }
     }
 
-    if (millis() % 250 == 0 && latestValue != inputTime)
+    if (millis() % 500 == 0)
     {
-        lcd.clear();
-        lcd.setCursor(0, 0);
-
-        if (menu == 0)
-        {
-            lcd.print(" Set Time  ");
-            lcd.setCursor(0, 1);
-            lcd.print(inputTime);
-        }
-        if (menu == 1)
-        {
-            lcd.print("Timer  " + inputTime);
-        }
-        if (menu == 2)
-        {
-            lcd.print("real Time " + inputTime);
-        }
-        if (menu == 3)
-        {
-            if (pass == true)
-            {
-                lcd.print("STOP");
-            }
-            else
-            {
-                lcd.print("RUN");
-            }
-        }
-
-        Serial.println("LCD Display: " + inputTime);
-        
-        latestValue = inputTime;
+        showMenu();
     }
 }
