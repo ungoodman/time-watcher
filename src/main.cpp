@@ -21,7 +21,7 @@ void setup()
     Serial.begin(115200);
 
     xTaskCreate(keypadTask, "keypad Task", 128, NULL, 1, NULL);
-    xTaskCreate(lcdTask, " lcdTask", 128, NULL, 1, NULL);
+    // xTaskCreate(lcdTask, " lcdTask", 128, NULL, 1, NULL);
 }
 
 void keypadTask(void *pvParameters)
@@ -72,6 +72,8 @@ void keypadTask(void *pvParameters)
 
                 inputTime += keypadValue;
             }
+
+            Serial.println("Input Time: " + inputTime);
         }
 
         vTaskDelay(20);
