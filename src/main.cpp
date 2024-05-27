@@ -102,29 +102,35 @@ void showMenu()
         lcd.print(" Set Time  ");
         lcd.setCursor(0, 1);
         lcd.print(inputTime);
+        Serial.println("LCD Display: " + inputTime);
+        latestValue = inputTime;
         return;
     case 1:
         lcd.print("Timer  " + inputTime);
+        Serial.println("LCD Display: " + inputTime);
+        latestValue = inputTime;
         return;
     case 2:
         lcd.print("real Time " + inputTime);
+        Serial.println("LCD Display: " + inputTime);
+        latestValue = inputTime;
         return;
     case 3:
         if (pass)
         {
             lcd.print("STOP");
+            Serial.println("LCD Display: " + inputTime);
+            latestValue = inputTime;
             return;
         }
 
         lcd.print("RUN");
+        Serial.println("LCD Display: " + inputTime);
+        latestValue = inputTime;
         return;
     default:
         break;
     }
-
-    Serial.println("LCD Display: " + inputTime);
-
-    latestValue = inputTime;
 }
 
 void loop()
