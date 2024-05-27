@@ -59,6 +59,8 @@ void loop()
             {
                 menu = 3;
                 pass = !pass;
+
+                inputTime = String(pass);
             }
 
             else if (keypadValue >= '0' && keypadValue <= '9')
@@ -82,37 +84,27 @@ void loop()
         }
     }
 
-    if (millis() % 250 == 0)
+    if (millis() % 250 == 0 && latestValue != inputTime)
     {
-        if (latestValue != inputTime)
+        lcd.clear();
+        lcd.setCursor(0, 0);
+
+        if (menu == 0)
         {
-            lcd.clear();
-            lcd.setCursor(0, 0);
-
-            if (menu == 0)
-            {
-                lcd.print(" Set Time  ");
-                lcd.setCursor(0, 1);
-                lcd.print(inputTime);
-            }
-            if (menu == 1)
-            {
-                lcd.print("Timer  " + inputTime);
-            }
-            if (menu == 2)
-            {
-                lcd.print("real Time " + inputTime);
-            }
-
-            Serial.println("LCD Display: " + inputTime);
-
-            latestValue = inputTime;
+            lcd.print(" Set Time  ");
+            lcd.setCursor(0, 1);
+            lcd.print(inputTime);
         }
-
+        if (menu == 1)
+        {
+            lcd.print("Timer  " + inputTime);
+        }
+        if (menu == 2)
+        {
+            lcd.print("real Time " + inputTime);
+        }
         if (menu == 3)
         {
-            lcd.clear();
-            lcd.setCursor(0, 0);
             if (pass == true)
             {
                 lcd.print("STOP");
@@ -122,5 +114,9 @@ void loop()
                 lcd.print("RUN");
             }
         }
+
+        Serial.println("LCD Display: " + inputTime);
+        
+        latestValue = inputTime;
     }
 }
