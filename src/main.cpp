@@ -1,132 +1,111 @@
-#include <Wire.h>              //   เป็นคำสั่งเรียกใช้ libary wire
-#include <LiquidCrystal_I2C.h> //   เป็นคำสั่งเรียกใช้ Libary ของ lcd i2c
-#include <I2CKeyPad.h>         //   เป็นคำสั่งเรียกใช้ libary keypad i2c
+#include <LiquidCrystal_I2C.h>                 //   เป็นคำสั่งเรียกใช้ Libary ของ lcd i2c 
+#include <I2CKeyPad.h>                         //   เป็นคำสั่งเรียกใช้ libary keypad i2c
 #include <Keypad.h>
 #include <Arduino_FreeRTOS.h>
 
-// สร้างออบเจ็ค Keypad_I2C
-String inputTime = ""; //  ตัวแปร  ค่าล่าสุด
+
+I2CKeyPad keypad(0x20);                         //  เป็นคำสั่งเก็บค่า address ของ keypad address = 0x20
+LiquidCrystal_I2C lcd(0x27, 16, 2);             //  เป็นการตั้งค่า ของจอ Lcd (0*27 คือขนาดของจอ,16 ตัวอักษร ,2 บรรทัด)
+char keymap[19] = "123A456B789C*0#DNF";         //  เป็นคำสั่งใช้ตัวแปร char โดยชื่อ keymap เป็นตัวเก็บจำนวนไว้ที่ตัวแปร ของ array
+                                                // สร้างออบเจ็ค Keypad_I2C
+String inputTime = "";                           //  ตัวแปร  ค่าล่าสุด
 String latestValue = "";
+bool lockKeypad;                                 //  ตัวแปร  ล็อคปุ่มกด
 int menu;
-
-void keypadTask(void *pvParameters);
-void lcdTask(void *pvParameters);
-
+bool pass;
 void setup()
-{
-    // เริ่มต้นการทำงานของ I2C
-    // Wire.begin();
-    // Wire.setClock(400000); // เป็นคำสั่งตั้งค่าความเร็วในการสื่อสาร (400000 fast mode )
-
-    // Serial.begin(115200);
-
-    xTaskCreate(keypadTask, "keypad Task", 128, NULL, 1, NULL);
-    // xTaskCreate(lcdTask, " lcdTask", 128, NULL, 1, NULL);
+{                                              // เริ่มต้นการทำงานของ I2C
+    Wire.begin();
+    Wire.setClock(400000);                     // เป็นคำสั่งตั้งค่าความเร็วในการสื่อสาร (400000 fast mode )
+    lcd.init();                                // เริ่มต้นการทำงานของ LCD
+    lcd.backlight();
+    Serial.begin(115200);
+    if (!keypad.begin())                 //  ถ้า (keypad.begin เป็นการตรวจสอบว่าสื่อสารกันได้) keypad เป็น เท็จ
+    {
+        lcd.println("keypadError");
+        while (1);                                    //  เป็นคำสั่งทำซํ้าตลอดไปไม่หยุด
+    }
+    keypad.loadKeyMap(keymap);                   //  เป็นการตั้งค่า layout ของ keypad เป็นการดึงค่าจาก keymap มา
 }
 
-void keypadTask(void *pvParameters)
+   void loop()
 {
-    I2CKeyPad keypad(0x20);             //  เป็นคำสั่งเก็บค่า address ของ keypad address = 0x20
-
-    char keymap[19] = "123A456B789C*0#DNF"; //  เป็นคำสั่งใช้ตัวแปร char โดยชื่อ keymap เป็นตัวเก็บจำนวนไว้ที่ตัวแปร ของ array
-
-    Serial.begin(115200);
-
-    // เริ่มต้นการทำงานของ I2C
-    Wire.begin();
-    Wire.setClock(400000); // เป็นคำสั่งตั้งค่าความเร็วในการสื่อสาร (400000 fast mode )
-
-    if (!keypad.begin()) //  ถ้า (keypad.begin เป็นการตรวจสอบว่าสื่อสารกันได้) keypad เป็น เท็จ
+    if (millis() % 100 == 0)
     {
-        Serial.println("Error keypad");
-        while (1); //  เป็นคำสั่งทำซํ้าตลอดไปไม่หยุด
-    }
-
-    keypad.loadKeyMap(keymap); //  เป็นการตั้งค่า layout ของ keypad เป็นการดึงค่าจาก keymap มา
-
-    bool lockKeypad; //  ตัวแปร  ล็อคปุ่มกด
-
-    while (1)
-    {
-        if (keypad.isPressed() && !lockKeypad)
+        if (keypad.isPressed() && !lockKeypad)              
         {
             char keypadValue = keypad.getChar();
-
+            String inputFromKeypad = "Input from Keypad: ";
+            Serial.println(inputFromKeypad.concat(keypadValue));
             lockKeypad = true;
-
+            Serial.println("Keypad Lock: " + String(lockKeypad));
+            
             if (keypadValue == '#')
             {
+                
             }
             else if (keypadValue == '*')
             {
                 inputTime = "";
             }
-            else if (keypadValue == 'A')
-            {
-                menu = 1;
+            else if (keypadValue == 'A') {
+                 menu = 1;
             }
-            else if (keypadValue == 'B')
-            {
-                menu = 2;
-            }
+            else if (keypadValue == 'B') {
+                 menu = 2;
+            } 
+            else if (keypadValue ==  'C') {
+                 menu = 3;
+            }   
+
             else if (keypadValue >= '0' && keypadValue <= '9')
             {
                 if (inputTime.length() >= 6)
                 {
                     inputTime = "";
                 }
-
                 inputTime += keypadValue;
             }
-
-            Serial.println("Input Time: " + inputTime);
+            else
+            {
+                Serial.println("Menu: " + keypadValue);
+            }
         }
-
-        vTaskDelay(20);
-    }
-}
-
-void lcdTask(void *pvParameters)
-{
-    LiquidCrystal_I2C lcd(0x27, 16, 2); //  เป็นการตั้งค่า ของจอ Lcd (0*27 คือขนาดของจอ,16 ตัวอักษร ,2 บรรทัด)
-
-    Serial.begin(115200);
-
-    // เริ่มต้นการทำงานของ I2C
-    Wire.begin();
-    Wire.setClock(400000); // เป็นคำสั่งตั้งค่าความเร็วในการสื่อสาร (400000 fast mode )
-
-    lcd.init(); // เริ่มต้นการทำงานของ LCD
-    lcd.backlight();
-
-    while (1)
-    {
-        if (latestValue != inputTime)
+    
+        if (!keypad.isPressed() && lockKeypad)
         {
-            lcd.clear();
-
-            lcd.home();
-            lcd.print("   Set  Time   ");
-
-            lcd.setCursor(0, 1);
-            lcd.print(inputTime);
-            if (menu == 1)
-            {
-                lcd.print("Timer ");
-            }
-            if (menu == 2)
-            {
-                lcd.print("real Time");
-            }
-            Serial.println("LCD Display: " + inputTime);
-
-            latestValue = inputTime;
+            lockKeypad = false;
+            Serial.println("Keypad Lock: " + String(lockKeypad));
         }
-
-        vTaskDelay(20);
+    }
+    
+    if (millis() % 250 == 0 && latestValue != inputTime)
+    {
+        lcd.clear();
+        lcd.home();
+        if (menu == 0){
+        lcd.print(" Set Time  ");
+         lcd.setCursor(0, 1);
+         lcd.print(inputTime);
+        }
+        if (menu == 1) {
+            lcd.print("Timer  " + inputTime );
+        }
+        if (menu == 2){
+            lcd.print("real Time " + inputTime);
+        }
+        if (menu == 3) {
+            if (pass == true) {
+            lcd.print ("STOP");  
+         } else {
+             lcd.print("RUN");
+         }   
+        
+        }
+        Serial.println("LCD Display: " + inputTime);
+        latestValue = inputTime;
     }
 }
 
-void loop()
-{
-}
+
+
