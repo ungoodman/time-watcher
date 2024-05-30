@@ -1,9 +1,14 @@
+#include <Arduino.h>
+#include <Wire.h>
 #include <LiquidCrystal_I2C.h> //   เป็นคำสั่งเรียกใช้ Libary ของ lcd i2c
-#include <I2CKeyPad.h>         //   เป็นคำสั่งเรียกใช้ libary keypad i2c
+#include <I2CKeyPad.h>          //   เป็นคำสั่งเรียกใช้ libary keypad i2c
 #include <Keypad.h>
-#include <Arduino_FreeRTOS.h>
+#include <SPI.h>
+#include <nRF24L01.h>
+#include <RF24.h>
 
-I2CKeyPad keypad(0x20);                 //  เป็นคำสั่งเก็บค่า address ของ keypad address = 0x20
+RF24 radio(8, 7);
+I2CKeyPad keypad(0x20); //  เป็นคำสั่งเก็บค่า address ของ keypad address = 0x20
 LiquidCrystal_I2C lcd(0x27, 16, 2);     //  เป็นการตั้งค่า ของจอ Lcd (0*27 คือขนาดของจอ,16 ตัวอักษร ,2 บรรทัด)
 char keymap[19] = "123A456B789C*0#DNF"; //  เป็นคำสั่งใช้ตัวแปร char โดยชื่อ keymap เป็นตัวเก็บจำนวนไว้ที่ตัวแปร ของ array
                                         // สร้างออบเจ็ค Keypad_I2C
@@ -15,14 +20,22 @@ bool pass;
 bool flagMenuChange;
 bool flagCommit;
 bool flagSendCmd;
+const uint64_t pipe = 0xE8E8F0F0E1LL;
 
 void setup()
 { // เริ่มต้นการทำงานของ I2C
-    Wire.begin();
-    Wire.setClock(400000); // เป็นคำสั่งตั้งค่าความเร็วในการสื่อสาร (400000 fast mode )
-    lcd.init();            // เริ่มต้นการทำงานของ LCD
+    // Wire.begin();
+    // Wire.setClock(400000); // เป็นคำสั่งตั้งค่าความเร็วในการสื่อสาร (400000 fast mode )
+    lcd.init();
     lcd.backlight();
+
+    radio.begin();
+    radio.openWritingPipe(pipe);
+
+    Wire.setWireTimeout(1000, false);
+
     Serial.begin(115200);
+    
     if (!keypad.begin()) //  ถ้า (keypad.begin เป็นการตรวจสอบว่าสื่อสารกันได้) keypad เป็น เท็จ
     {
         lcd.println("keypadError");
@@ -76,7 +89,7 @@ void selectMenu(char buttonValue)
 
 void checkNumberValue(char buttonValue)
 {
-    if (buttonValue < '0' || buttonValue > '9' || menu < 1 || menu > 2)
+    if (buttonValue < '0' || buttonValue > '9' || menu < 1 || menu > 2 || flagCommit)
         return;
 
     if (inputTime.length() >= 6)
@@ -96,26 +109,23 @@ void checkConfirm(char buttonValue)
     {
         flagMenuChange = true;
 
-        if (flagCommit && inputTime.length() > 0)
+        if (flagCommit && inputTime.length() >= 6)
         {
             flagCommit = false;
             // send cmd
+            radio.write("Hello, World!", 14);
             return;
         }
 
-        flagCommit = true;
-        return;
+        if (inputTime.length() >= 6)
+            flagCommit = true;
+        
     }
 
     if (buttonValue == '*')
     {
-        if (inputTime.length() > 0)
-        {
-            flagCommit = false;
-            return;
-        }
-        
         inputTime = "";
+        flagCommit = false;
     }
 }
 
@@ -126,7 +136,7 @@ void showMenu()
 
     if (flagMenuChange)
         flagMenuChange = false;
-    
+
     lcd.clear();
     lcd.setCursor(0, 0);
 
@@ -147,14 +157,14 @@ void showMenu()
             latestValue = inputTime;
             return;
         }
-        
+
         lcd.print("TIMER    " + inputTime);
-        Serial.println("LCD Display: " + inputTime);
+        Serial.println("Menu 1");
         latestValue = inputTime;
         return;
     case 2:
         lcd.print("CLOCK    " + inputTime);
-        Serial.println("LCD Display: " + inputTime);
+        Serial.println("Menu 2");
         latestValue = inputTime;
         return;
     case 3:
@@ -173,7 +183,7 @@ void showMenu()
 
 void loop()
 {
-    if (millis() % 250 == 0)
+    if (millis() % 200 == 0)
     {
         bool pressed = keypad.isPressed();
 
@@ -196,7 +206,7 @@ void loop()
         }
     }
 
-    if (millis() % 500 == 0)
+    if (millis() % 350 == 0)
     {
         showMenu();
     }
