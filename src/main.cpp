@@ -12,6 +12,10 @@ String latestValue = "";
 bool lockKeypad; //  ตัวแปร  ล็อคปุ่มกด
 int menu;
 bool pass;
+bool flagMenuChange;
+bool flagCommit;
+bool flagSendCmd;
+
 void setup()
 { // เริ่มต้นการทำงานของ I2C
     Wire.begin();
@@ -26,6 +30,8 @@ void setup()
             ; //  เป็นคำสั่งทำซํ้าตลอดไปไม่หยุด
     }
     keypad.loadKeyMap(keymap); //  เป็นการตั้งค่า layout ของ keypad เป็นการดึงค่าจาก keymap มา
+
+    flagMenuChange = true;
 }
 
 void selectMenu(char buttonValue)
@@ -34,6 +40,11 @@ void selectMenu(char buttonValue)
     {
         return;
     }
+
+    flagMenuChange = true;
+    inputTime = "";
+    latestValue = "";
+    flagCommit = false;
 
     switch (buttonValue)
     {
@@ -51,7 +62,11 @@ void selectMenu(char buttonValue)
     {
         menu = 3;
         pass = !pass;
-        inputTime = String(pass);
+        return;
+    }
+    case 'D':
+    {
+        menu = 4;
         return;
     }
     default:
@@ -61,7 +76,7 @@ void selectMenu(char buttonValue)
 
 void checkNumberValue(char buttonValue)
 {
-    if (buttonValue < '0' || buttonValue > '9' || menu < 0 || menu > 2)
+    if (buttonValue < '0' || buttonValue > '9' || menu < 1 || menu > 2)
         return;
 
     if (inputTime.length() >= 6)
@@ -79,54 +94,77 @@ void checkConfirm(char buttonValue)
 
     if (buttonValue == '#')
     {
+        flagMenuChange = true;
+
+        if (flagCommit && inputTime.length() > 0)
+        {
+            flagCommit = false;
+            // send cmd
+            return;
+        }
+
+        flagCommit = true;
         return;
     }
 
     if (buttonValue == '*')
     {
+        if (inputTime.length() > 0)
+        {
+            flagCommit = false;
+            return;
+        }
+        
         inputTime = "";
     }
 }
 
 void showMenu()
 {
-    if (latestValue == inputTime)
+    if (latestValue == inputTime && !flagMenuChange)
         return;
 
+    if (flagMenuChange)
+        flagMenuChange = false;
+    
     lcd.clear();
     lcd.setCursor(0, 0);
 
     switch (menu)
     {
     case 0:
-        lcd.print(" Set Time  ");
+        lcd.print("  CLOCK REMOTE  ");
         lcd.setCursor(0, 1);
-        lcd.print(inputTime);
-        Serial.println("LCD Display: " + inputTime);
-        latestValue = inputTime;
+        lcd.print("PRESS MENU A - D");
         return;
     case 1:
-        lcd.print("Timer  " + inputTime);
+        if (flagCommit)
+        {
+            lcd.print(" PRESS # TO RUN ");
+            lcd.setCursor(0, 1);
+            lcd.print("     " + inputTime + "      ");
+            Serial.println("LCD Display: " + inputTime);
+            latestValue = inputTime;
+            return;
+        }
+        
+        lcd.print("TIMER    " + inputTime);
         Serial.println("LCD Display: " + inputTime);
         latestValue = inputTime;
         return;
     case 2:
-        lcd.print("real Time " + inputTime);
+        lcd.print("CLOCK    " + inputTime);
         Serial.println("LCD Display: " + inputTime);
         latestValue = inputTime;
         return;
     case 3:
         if (pass)
         {
-            lcd.print("STOP");
-            Serial.println("LCD Display: " + inputTime);
-            latestValue = inputTime;
+            lcd.print("   STOP TIMER   ");
             return;
         }
 
-        lcd.print("RUN");
-        Serial.println("LCD Display: " + inputTime);
-        latestValue = inputTime;
+        lcd.print("   RUN  TIMER   ");
         return;
     default:
         break;
@@ -146,9 +184,9 @@ void loop()
             lockKeypad = true;
             Serial.println("Keypad Lock: " + String(lockKeypad));
 
-            selectMenu(keypadValue);
             checkNumberValue(keypadValue);
             checkConfirm(keypadValue);
+            selectMenu(keypadValue);
         }
 
         if (!pressed && lockKeypad)
