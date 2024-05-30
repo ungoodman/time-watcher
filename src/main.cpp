@@ -114,10 +114,15 @@ void checkConfirm(char buttonValue)
             flagCommit = false;
             // send cmd
             int stringLength = inputTime.length() + 1;
-            char byteToSend[stringLength];
-            inputTime.toCharArray(byteToSend, stringLength);
+            int byteToSend[stringLength];
+
+            for (int i = 0; i < inputTime.length(); i++)
+            {
+                byteToSend[i] = (int) inputTime[i];
+            }
+            
             radio.write(byteToSend, stringLength);
-            Serial.println("Send Radio: " + String(byteToSend));
+            Serial.println("Send Radio");
             return;
         }
 
