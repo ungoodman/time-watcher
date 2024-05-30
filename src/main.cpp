@@ -4,7 +4,6 @@
 #include <I2CKeyPad.h>          //   เป็นคำสั่งเรียกใช้ libary keypad i2c
 #include <Keypad.h>
 #include <SPI.h>
-#include <nRF24L01.h>
 #include <RF24.h>
 
 RF24 radio(8, 7);
@@ -29,13 +28,18 @@ void setup()
     lcd.init();
     lcd.backlight();
 
-    radio.begin();
-    radio.openWritingPipe(pipe);
-
     Wire.setWireTimeout(1000, false);
 
     Serial.begin(115200);
     
+    if (!radio.begin()) {
+        Serial.println("radio hardware is not responding!!!");
+        while (1)
+            ;
+    }
+
+    radio.openWritingPipe(pipe);
+
     if (!keypad.begin()) //  ถ้า (keypad.begin เป็นการตรวจสอบว่าสื่อสารกันได้) keypad เป็น เท็จ
     {
         lcd.println("keypadError");
@@ -114,12 +118,14 @@ void checkConfirm(char buttonValue)
             flagCommit = false;
             // send cmd
             int stringLength = inputTime.length() + 1;
-            int byteToSend[stringLength];
+            char byteToSend[stringLength];
 
-            for (int i = 0; i < inputTime.length(); i++)
-            {
-                byteToSend[i] = (int) inputTime[i];
-            }
+            // for (int i = 0; i < inputTime.length(); i++)
+            // {
+            //     byteToSend[i] = (int) inputTime[i];
+            // }
+
+            inputTime.toCharArray(byteToSend, stringLength);
             
             radio.write(byteToSend, stringLength);
             Serial.println("Send Radio");
