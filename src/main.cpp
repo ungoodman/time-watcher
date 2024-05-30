@@ -1,5 +1,5 @@
 #include <SPI.h>
-#include <nRF24L01.h>
+// #include <nRF24L01.h>
 #include <RF24.h>
 
 RF24 radio(8, 7);
@@ -9,10 +9,17 @@ void setup()
 {
     Serial.begin(115200);
 
-    radio.begin();
+    if (!radio.begin())
+    {
+        Serial.println("Radio Begin Failed");
+        while(true);
+    }
+
     radio.openReadingPipe(1, pipe);
 
     radio.startListening();
+
+    Serial.println("Radio Begin");
 }
 
 void loop()
@@ -25,7 +32,6 @@ void loop()
         {
             // Fetch the payload, and see if this was the last one.
             radio.read(getFromRead, 10);
-
         }
         Serial.print(getFromRead);
     }
