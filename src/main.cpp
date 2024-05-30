@@ -113,7 +113,11 @@ void checkConfirm(char buttonValue)
         {
             flagCommit = false;
             // send cmd
-            radio.write("Hello, World!", 14);
+            int stringLength = inputTime.length() + 1;
+            char byteToSend[stringLength];
+            inputTime.toCharArray(byteToSend, stringLength);
+            radio.write(byteToSend, stringLength);
+            Serial.println("Send Radio: " + String(byteToSend));
             return;
         }
 
