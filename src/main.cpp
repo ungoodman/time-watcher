@@ -96,26 +96,22 @@ void checkConfirm(char buttonValue)
     {
         flagMenuChange = true;
 
-        if (flagCommit && inputTime.length() > 0)
+        if (flagCommit && inputTime.length() >= 6)
         {
             flagCommit = false;
-            // send cmd
+            Serial.println("Send Radio");
             return;
         }
 
-        flagCommit = true;
-        return;
+        if (inputTime.length() >= 6)
+            flagCommit = true;
+        
     }
 
     if (buttonValue == '*')
     {
-        if (inputTime.length() > 0)
-        {
-            flagCommit = false;
-            return;
-        }
-        
         inputTime = "";
+        flagCommit = false;
     }
 }
 
