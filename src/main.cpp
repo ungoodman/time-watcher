@@ -121,7 +121,7 @@ void checkConfirm(char buttonValue)
             int stringLength = 9;
             char byteToSend[stringLength];
 
-            String dataToSend = menu + "#";
+            String dataToSend = String(menu) + "#";
             if (menu == 1 || menu == 2)
             {
                 dataToSend += inputTime;
