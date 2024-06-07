@@ -33,6 +33,6 @@ void loop()
             // Fetch the payload, and see if this was the last one.
             radio.read(getFromRead, 10);
         }
-        Serial.print(getFromRead);
+        Serial.println(getFromRead);
     }
 }
