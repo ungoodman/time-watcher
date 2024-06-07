@@ -1,13 +1,13 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h> //   เป็นคำสั่งเรียกใช้ Libary ของ lcd i2c
-#include <I2CKeyPad.h>          //   เป็นคำสั่งเรียกใช้ libary keypad i2c
+#include <I2CKeyPad.h>         //   เป็นคำสั่งเรียกใช้ libary keypad i2c
 #include <Keypad.h>
 #include <SPI.h>
 #include <RF24.h>
 
 RF24 radio(8, 7);
-I2CKeyPad keypad(0x20); //  เป็นคำสั่งเก็บค่า address ของ keypad address = 0x20
+I2CKeyPad keypad(0x20);                 //  เป็นคำสั่งเก็บค่า address ของ keypad address = 0x20
 LiquidCrystal_I2C lcd(0x27, 16, 2);     //  เป็นการตั้งค่า ของจอ Lcd (0*27 คือขนาดของจอ,16 ตัวอักษร ,2 บรรทัด)
 char keymap[19] = "123A456B789C*0#DNF"; //  เป็นคำสั่งใช้ตัวแปร char โดยชื่อ keymap เป็นตัวเก็บจำนวนไว้ที่ตัวแปร ของ array
                                         // สร้างออบเจ็ค Keypad_I2C
@@ -31,8 +31,9 @@ void setup()
     Wire.setWireTimeout(1000, false);
 
     Serial.begin(115200);
-    
-    if (!radio.begin()) {
+
+    if (!radio.begin())
+    {
         Serial.println("radio hardware is not responding!!!");
         while (1)
             ;
@@ -124,26 +125,25 @@ void checkConfirm(char buttonValue)
             if (menu == 1 || menu == 2)
             {
                 dataToSend += inputTime;
-            } 
+            }
             else if (menu == 3)
             {
                 dataToSend = String(pass);
-            } 
+            }
             else if (menu == 4)
             {
                 dataToSend = "000000";
             }
-        
+
             dataToSend.toCharArray(byteToSend, stringLength);
-            
+
             radio.write(byteToSend, stringLength);
             Serial.println("Send Radio: " + dataToSend);
             return;
-        }
+        }        
 
         if (inputTime.length() >= 6)
             flagCommit = true;
-        
     }
 
     if (buttonValue == '*')
@@ -187,6 +187,16 @@ void showMenu()
         latestValue = inputTime;
         return;
     case 2:
+        if (flagCommit)
+        {
+            lcd.print(" PRESS # TO SET ");
+            lcd.setCursor(0, 1);
+            lcd.print("     " + inputTime + "      ");
+            Serial.println("LCD Display: " + inputTime);
+            latestValue = inputTime;
+            return;
+        }
+
         lcd.print("CLOCK    " + inputTime);
         Serial.println("Menu 2");
         latestValue = inputTime;
