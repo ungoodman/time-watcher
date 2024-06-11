@@ -6,6 +6,12 @@
 #include <SPI.h>
 #include <RF24.h>
 
+TaskHandle_t keypadTask;
+TaskHandle_t lcdTask;
+TaskHandle_t radioTask;
+
+SemaphoreHandle_t mutex;
+
 RF24 radio(8, 7);
 I2CKeyPad keypad(0x20);             //  เป็นคำสั่งเก็บค่า address ของ keypad address = 0x20
 LiquidCrystal_I2C lcd(0x27, 16, 2); //  เป็นการตั้งค่า ของจอ Lcd (0*27 คือขนาดของจอ,16 ตัวอักษร ,2 บรรทัด)
@@ -13,7 +19,6 @@ LiquidCrystal_I2C lcd(0x27, 16, 2); //  เป็นการตั้งค่�
 char keymap[19] = "123A456B789C*0#DNF"; //  เป็นคำสั่งใช้ตัวแปร char โดยชื่อ keymap เป็นตัวเก็บจำนวนไว้ที่ตัวแปร ของ array
 const uint64_t pipe = 0xE8E8F0F0E1LL;
 
-int lcdRow = 0;
 String inputTime = ""; //  ตัวแปร  ค่าล่าสุด
 String latestValue = "";
 bool lockKeypad; //  ตัวแปร  ล็อคปุ่มกด
@@ -24,6 +29,19 @@ bool flagCommit;
 bool flagSendCmd;
 
 // Functions
+void createSemaphore() {
+    mutex = xSemaphoreCreateMutex();
+    xSemaphoreGive(mutex);
+}
+
+void lockVariable(){
+    xSemaphoreTake(mutex, portMAX_DELAY);
+}
+
+void unlockVariable(){
+    xSemaphoreGive(mutex);
+}
+
 void selectMenu(char buttonValue)
 {
     if (buttonValue < 'A' || buttonValue > 'C')
@@ -208,7 +226,6 @@ void showMenu()
 void readKeypad()
 {
     bool pressed = keypad.isPressed();
-    Serial.println("Keypad Pressed: " + String(pressed));
 
     if (pressed == true && lockKeypad == false)
     {
@@ -264,44 +281,97 @@ void sendRadio()
     flagSendCmd = false;
 }
 
-// Run
-void setup()
+void lcdTaskCode(void *pvParameters)
 {
     lcd.init();
     lcd.backlight();
 
-    Wire.setWireTimeout(1000, false);
+    for (;;)
+    {
+        lockVariable();
+        showMenu();
+        unlockVariable();
+        vTaskDelay(200 / portTICK_PERIOD_MS);
+    }
+}
 
+void keypadTaskCode(void *pvParameters)
+{
+    for (;;)
+    {
+        lockVariable();
+        readKeypad();
+        unlockVariable();
+        vTaskDelay(250 / portTICK_PERIOD_MS);
+    }
+}
+
+void radioTaskCode(void *pvParameters)
+{
+    for (;;)
+    {
+        lockVariable();
+        sendRadio();
+        unlockVariable();
+        vTaskDelay(300 / portTICK_PERIOD_MS);
+    }
+}
+
+// Run
+void setup()
+{
     Serial.begin(115200);
+
+    flagMenuChange = true;
+
+    Wire.setTimeOut(1000);
 
     if (!radio.begin())
     {
         Serial.println("radio hardware is not responding!!!");
-        while (1)
-            ;
+        while (1);
     }
-
-    radio.openWritingPipe(pipe);
 
     if (!keypad.begin()) //  ถ้า (keypad.begin เป็นการตรวจสอบว่าสื่อสารกันได้) keypad เป็น เท็จ
     {
         lcd.println("keypadError");
-        while (1)
-            ; //  เป็นคำสั่งทำซํ้าตลอดไปไม่หยุด
+        while (1); //  เป็นคำสั่งทำซํ้าตลอดไปไม่หยุด
     }
+
     keypad.loadKeyMap(keymap); //  เป็นการตั้งค่า layout ของ keypad เป็นการดึงค่าจาก keymap มา
 
-    flagMenuChange = true;
+    radio.openWritingPipe(pipe);
+
+    xTaskCreatePinnedToCore(
+        lcdTaskCode, /* Function to implement the task */
+        "LCD Task",  /* Name of the task */
+        10000,       /* Stack size in words */
+        NULL,        /* Task input parameter */
+        0,           /* Priority of the task */
+        &lcdTask,    /* Task handle. */
+        0);          /* Core where the task should run */
+
+    xTaskCreatePinnedToCore(
+        keypadTaskCode,  /* Function to implement the task */
+        "Keypad Task", /* Name of the task */
+        10000,        /* Stack size in words */
+        NULL,         /* Task input parameter */
+        0,            /* Priority of the task */
+        &keypadTask,     /* Task handle. */
+        1);           /* Core where the task should run */
+    
+    xTaskCreatePinnedToCore(
+        radioTaskCode,  /* Function to implement the task */
+        "Radio Task", /* Name of the task */
+        10000,        /* Stack size in words */
+        NULL,         /* Task input parameter */
+        0,            /* Priority of the task */
+        &radioTask,     /* Task handle. */
+        1);           /* Core where the task should run */
+
+    // Wire.setWireTimeout(1000, false);
 }
 
 void loop()
 {
-    if (millis() % 200 == 0)
-        readKeypad();
-
-    if (millis() % 250 == 0)
-        sendRadio();
-
-    if (millis() % 350 == 0)
-        showMenu();
 }
