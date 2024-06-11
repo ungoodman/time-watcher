@@ -249,9 +249,9 @@ void sendRadio()
     if (menu == 1 || menu == 2)
         dataToSend += inputTime;
     else if (menu == 3)
-        dataToSend = "00000" + String(pass);
+        dataToSend += "00000" + String(pass);
     else
-        dataToSend = "000000";
+        dataToSend += "000000";
 
     char byteToSend[stringLength];
     dataToSend.toCharArray(byteToSend, stringLength);
