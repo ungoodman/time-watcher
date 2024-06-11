@@ -209,7 +209,7 @@ void readKeypad()
 {
     bool pressed = keypad.isPressed();
 
-    if (pressed && !lockKeypad)
+    if (pressed == true && lockKeypad == false)
     {
         char keypadValue = keypad.getChar();
 
@@ -222,7 +222,7 @@ void readKeypad()
         selectMenu(keypadValue);
     }
 
-    if (!pressed && lockKeypad)
+    if (pressed == false && lockKeypad == true)
     {
         lockKeypad = false;
         Serial.println("Keypad Lock: " + String(lockKeypad));
