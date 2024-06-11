@@ -215,6 +215,7 @@ void readKeypad()
 
         lockKeypad = true;
         Serial.println("Keypad Lock: " + String(lockKeypad));
+        Serial.println("Keypad Pressed!");
 
         checkNumberValue(keypadValue);
         checkConfirm(keypadValue);
@@ -225,6 +226,7 @@ void readKeypad()
     {
         lockKeypad = false;
         Serial.println("Keypad Lock: " + String(lockKeypad));
+        Serial.println("Keypad RELEASE!");
     }
 }
 
