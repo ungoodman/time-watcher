@@ -208,6 +208,7 @@ void showMenu()
 void readKeypad()
 {
     bool pressed = keypad.isPressed();
+    Serial.println("Keypad Pressed: " + String(pressed));
 
     if (pressed == true && lockKeypad == false)
     {
@@ -215,7 +216,6 @@ void readKeypad()
 
         lockKeypad = true;
         Serial.println("Keypad Lock: " + String(lockKeypad));
-        Serial.println("Keypad Pressed!");
 
         checkNumberValue(keypadValue);
         checkConfirm(keypadValue);
@@ -257,6 +257,7 @@ void sendRadio()
     dataToSend.toCharArray(byteToSend, stringLength);
 
     radio.write(byteToSend, stringLength);
+    radio.flush_tx();
 
     Serial.println("Send Radio: " + dataToSend);
 
@@ -298,7 +299,7 @@ void loop()
     if (millis() % 200 == 0)
         readKeypad();
 
-    if (millis() % 100 == 0)
+    if (millis() % 250 == 0)
         sendRadio();
 
     if (millis() % 350 == 0)
