@@ -10,14 +10,14 @@ TaskHandle_t keypadTask;
 TaskHandle_t lcdTask;
 TaskHandle_t radioTask;
 
-SemaphoreHandle_t mutex;
+// SemaphoreHandle_t mutex;
 
 RF24 radio(8, 7);
 I2CKeyPad keypad(0x20);             //  เป็นคำสั่งเก็บค่า address ของ keypad address = 0x20
 LiquidCrystal_I2C lcd(0x27, 16, 2); //  เป็นการตั้งค่า ของจอ Lcd (0*27 คือขนาดของจอ,16 ตัวอักษร ,2 บรรทัด)
 
 char keymap[19] = "123A456B789C*0#DNF"; //  เป็นคำสั่งใช้ตัวแปร char โดยชื่อ keymap เป็นตัวเก็บจำนวนไว้ที่ตัวแปร ของ array
-const uint64_t pipe = 0xE8E8F0F0E1LL;
+// const uint64_t pipe = 0xE8E8F0F0E1LL;
 
 String inputTime = ""; //  ตัวแปร  ค่าล่าสุด
 String latestValue = "";
@@ -29,18 +29,6 @@ bool flagCommit;
 bool flagSendCmd;
 
 // Functions
-void createSemaphore() {
-    mutex = xSemaphoreCreateMutex();
-    xSemaphoreGive(mutex);
-}
-
-void lockVariable(){
-    xSemaphoreTake(mutex, portMAX_DELAY);
-}
-
-void unlockVariable(){
-    xSemaphoreGive(mutex);
-}
 
 void selectMenu(char buttonValue)
 {
@@ -283,14 +271,9 @@ void sendRadio()
 
 void lcdTaskCode(void *pvParameters)
 {
-    lcd.init();
-    lcd.backlight();
-
     for (;;)
     {
-        lockVariable();
         showMenu();
-        unlockVariable();
         vTaskDelay(200 / portTICK_PERIOD_MS);
     }
 }
@@ -299,9 +282,7 @@ void keypadTaskCode(void *pvParameters)
 {
     for (;;)
     {
-        lockVariable();
         readKeypad();
-        unlockVariable();
         vTaskDelay(250 / portTICK_PERIOD_MS);
     }
 }
@@ -310,11 +291,31 @@ void radioTaskCode(void *pvParameters)
 {
     for (;;)
     {
-        lockVariable();
         sendRadio();
-        unlockVariable();
-        vTaskDelay(300 / portTICK_PERIOD_MS);
+        vTaskDelay(250 / portTICK_PERIOD_MS);
     }
+}
+
+void radioSetup()
+{
+    if (!radio.begin())
+    {
+        Serial.println("radio hardware is not responding!!!");
+        while (1);
+    }
+
+    radio.openWritingPipe(0xE8E8F0F0E1LL);
+}
+
+void keypadSetup()
+{
+    if (!keypad.begin()) //  ถ้า (keypad.begin เป็นการตรวจสอบว่าสื่อสารกันได้) keypad เป็น เท็จ
+    {
+        lcd.println("keypadError");
+        while (1); //  เป็นคำสั่งทำซํ้าตลอดไปไม่หยุด
+    }
+
+    keypad.loadKeyMap(keymap); //  เป็นการตั้งค่า layout ของ keypad เป็นการดึงค่าจาก keymap มา
 }
 
 // Run
@@ -326,52 +327,39 @@ void setup()
 
     Wire.setTimeOut(1000);
 
-    if (!radio.begin())
-    {
-        Serial.println("radio hardware is not responding!!!");
-        while (1);
-    }
+    // radioSetup();
+    // keypadSetup();
 
-    if (!keypad.begin()) //  ถ้า (keypad.begin เป็นการตรวจสอบว่าสื่อสารกันได้) keypad เป็น เท็จ
-    {
-        lcd.println("keypadError");
-        while (1); //  เป็นคำสั่งทำซํ้าตลอดไปไม่หยุด
-    }
+    lcd.init();
+    lcd.backlight();
 
-    keypad.loadKeyMap(keymap); //  เป็นการตั้งค่า layout ของ keypad เป็นการดึงค่าจาก keymap มา
+    // xTaskCreate(
+    //     lcdTaskCode, /* Function to implement the task */
+    //     "LCD Task",  /* Name of the task */
+    //     10000,       /* Stack size in words */
+    //     NULL,        /* Task input parameter */
+    //     0,           /* Priority of the task */
+    //     &lcdTask);
 
-    radio.openWritingPipe(pipe);
+    // xTaskCreate(
+    //     keypadTaskCode, /* Function to implement the task */
+    //     "Keypad Task",  /* Name of the task */
+    //     10000,          /* Stack size in words */
+    //     NULL,           /* Task input parameter */
+    //     0,              /* Priority of the task */
+    //     &keypadTask);
 
-    xTaskCreatePinnedToCore(
-        lcdTaskCode, /* Function to implement the task */
-        "LCD Task",  /* Name of the task */
-        10000,       /* Stack size in words */
-        NULL,        /* Task input parameter */
-        0,           /* Priority of the task */
-        &lcdTask,    /* Task handle. */
-        0);          /* Core where the task should run */
-
-    xTaskCreatePinnedToCore(
-        keypadTaskCode,  /* Function to implement the task */
-        "Keypad Task", /* Name of the task */
-        10000,        /* Stack size in words */
-        NULL,         /* Task input parameter */
-        0,            /* Priority of the task */
-        &keypadTask,     /* Task handle. */
-        1);           /* Core where the task should run */
-    
-    xTaskCreatePinnedToCore(
-        radioTaskCode,  /* Function to implement the task */
-        "Radio Task", /* Name of the task */
-        10000,        /* Stack size in words */
-        NULL,         /* Task input parameter */
-        0,            /* Priority of the task */
-        &radioTask,     /* Task handle. */
-        1);           /* Core where the task should run */
-
-    // Wire.setWireTimeout(1000, false);
+    // xTaskCreate(
+    //     radioTaskCode, /* Function to implement the task */
+    //     "Radio Task",  /* Name of the task */
+    //     10000,         /* Stack size in words */
+    //     NULL,          /* Task input parameter */
+    //     0,             /* Priority of the task */
+    //     &radioTask);
 }
 
 void loop()
 {
+    lcd.print(millis());
+    delay(1000);
 }
