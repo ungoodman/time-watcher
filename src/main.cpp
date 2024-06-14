@@ -312,7 +312,7 @@ void keypadSetup()
 {
     if (!keypad.begin()) //  ถ้า (keypad.begin เป็นการตรวจสอบว่าสื่อสารกันได้) keypad เป็น เท็จ
     {
-        lcd.println("keypadError");
+        Serial.println("keypadError");
         while (1); //  เป็นคำสั่งทำซํ้าตลอดไปไม่หยุด
     }
 
