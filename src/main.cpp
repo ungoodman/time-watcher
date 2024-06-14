@@ -372,13 +372,14 @@
 #include <LiquidCrystal_I2C.h>
 #include <I2CKeyPad.h>
 // #include <Keypad.h>
-// #include <SPI.h>
-// #include <RF24.h>
+#include <SPI.h>
+#include <RF24.h>
 
 #define COLUMS 20             // LCD columns
 #define ROWS 4                // LCD rows
 #define LCD_SPACE_SYMBOL 0x20 // space symbol from LCD ROM, see p.9 of GDM2004D datasheet
 
+RF24 radio(4, 5);
 I2CKeyPad keyPad(0x20);
 LiquidCrystal_I2C lcd(PCF8574_ADDR_A21_A11_A01, 4, 5, 6, 16, 11, 12, 13, 14, POSITIVE);
 
@@ -387,6 +388,14 @@ void setup()
     Wire.begin();
     Serial.begin(115200);
 
+    if (!radio.begin())
+    {
+        Serial.println("\nERROR: cannot communicate to radio.\nPlease reboot.\n");
+        while (1);
+    }
+
+    Serial.println("\nRadio: OK.\n");
+    
     Wire.setClock(400000);
     if (keyPad.begin() == false)
     {
@@ -394,11 +403,15 @@ void setup()
         while (1);
     }
 
+    Serial.println("\nKeypad: OK.\n");
+
     while (lcd.begin(COLUMS, ROWS, LCD_5x8DOTS) != 1) // colums, rows, characters size
     {
         Serial.println(F("PCF8574 is not connected or lcd pins declaration is wrong. Only pins numbers: 4,5,6,16,11,12,13,14 are legal."));
         delay(5000);
     }
+
+    Serial.println("\nLCD: OK.\n");
 
     lcd.print(F("PCF8574 is OK...")); //(F()) saves string to flash & keeps dynamic memory free
     delay(2000);
