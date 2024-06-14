@@ -362,5 +362,5 @@ void setup()
 void loop()
 {
     readKeypad();
-    delay(1000);
+    delay(200);
 }
