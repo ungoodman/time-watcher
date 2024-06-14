@@ -360,6 +360,6 @@ void setup()
 
 void loop()
 {
-    lcd.print(millis());
+    lcd.print(String(millis()));
     delay(1000);
 }
