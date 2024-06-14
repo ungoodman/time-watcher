@@ -328,10 +328,10 @@ void setup()
     Wire.setTimeOut(1000);
 
     // radioSetup();
-    // keypadSetup();
+    keypadSetup();
 
-    lcd.init();
-    lcd.backlight();
+    // lcd.init();
+    // lcd.backlight();
 
     // xTaskCreate(
     //     lcdTaskCode, /* Function to implement the task */
@@ -360,6 +360,6 @@ void setup()
 
 void loop()
 {
-    lcd.print(String(millis()));
+    readKeypad();
     delay(1000);
 }
