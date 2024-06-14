@@ -214,6 +214,7 @@ void showMenu()
 void readKeypad()
 {
     bool pressed = keypad.isPressed();
+    Serial.println("Keypad pressed: " + String(pressed));
 
     if (pressed == true && lockKeypad == false)
     {
