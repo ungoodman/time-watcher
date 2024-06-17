@@ -92,8 +92,8 @@ void timeTask()
     //     clockTime[1] = 0;
     //     clockTime[0]++;
     // }
-
-    Serial.println(clockTime[5]++);
+    clockTime[5] += 1;
+    Serial.println(clockTime[5]);
 }
 
 // void radioSetup()
