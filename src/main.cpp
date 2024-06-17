@@ -52,13 +52,18 @@ RF24 radio(4, 5);
 //     flagTimerUpdate = true;
 // }
 
+int lastSecStDigit;
+
 void clockControl()
 {
     int secondStDigit = clockTime[5] / 10;
     int secondNdDigit = clockTime[5] % 10;
 
-    shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[secondStDigit]);
+    if (secondStDigit != lastSecStDigit)
+        shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[secondStDigit]);
     shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[secondNdDigit]);
+
+    lastSecStDigit = secondStDigit;
 }
 
 void timeTask()
