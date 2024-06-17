@@ -149,7 +149,7 @@ void loop()
     // if (millis() % 300 == 0)
     //     listenRadio();        
 
-    if (lastTime - millis() >= 1000) {
+    if (millis() - lastTime >= 1000) {
         timeTask();
         clockControl();
         lastTime = millis();
