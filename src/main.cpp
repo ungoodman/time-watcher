@@ -1,346 +1,157 @@
 #include <Arduino.h>
 #pragma GCC optimize("O3") // code optimisation controls - "O2" & "O3" code performance, "Os" code size
 
-#include <Wire.h>
-#include <LiquidCrystal_I2C.h>
-#include <I2CKeyPad.h>
+#include <EEPROM.h>
 #include <SPI.h>
 #include <RF24.h>
 
-#define COLUMS 20             // LCD columns
-#define ROWS 4                // LCD rows
-#define LCD_SPACE_SYMBOL 0x20 // space symbol from LCD ROM, see p.9 of GDM2004D datasheet
-#define PIPE_ADDRESS 0xE8E8F0F0E1LL
+#define DATA_PIN 8
+#define CLOCK_PIN 9
+// #define PIPE_ADDRESS 0xE8E8F0F0E1LL
 
-char keymap[19] = "123A456B789C*0#DNF"; //  เป็นคำสั่งใช้ตัวแปร char โดยชื่อ keymap เป็นตัวเก็บจำนวนไว้ที่ตัวแปร ของ array
+// digit 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+byte ledDigitBytes[] = {
+    B11111100,
+    B01100000,
+    B11011010,
+    B11110010,
+    B01100110,
+    B10110110,
+    B10111110,
+    B11100000,
+    B11111110,
+    B11110110};
 
 String inputTime = ""; //  ตัวแปร  ค่าล่าสุด
 String latestValue = "";
-bool lockKeypad; //  ตัวแปร  ล็อคปุ่มกด
+
 int menu;
-bool pass;
-bool flagMenuChange;
-bool flagCommit;
-bool flagSendCmd;
+
+bool flagLedUpdate;
+bool flagClockUpdate;
+// bool flagTimerUpdate;
+// bool flagTimerPause;
+// bool flagReceiveCmd;
+
+// int timerTime[3];
+int clockTime[6];
 
 RF24 radio(4, 5);
-I2CKeyPad keyPad(0x20);
-LiquidCrystal_I2C lcd(PCF8574_ADDR_A21_A11_A01, 4, 5, 6, 16, 11, 12, 13, 14, POSITIVE);
 
-void selectMenu(char buttonValue)
+// void executeCmd()
+// {
+//     if (menu == 1 || menu == 2)
+//     {
+//         /* code */
+//     }
+//     else if (menu == 3)
+//     {
+//         /* code */
+//     }
+
+//     flagTimerUpdate = true;
+// }
+
+void clockControl()
 {
-    if (buttonValue < 'A' || buttonValue > 'D')
-    {
-        return;
-    }
+    // int hour = clockTime[3];
+    int minute = clockTime[4];
+    int second = clockTime[5];
 
-    flagMenuChange = true;
-    inputTime = "";
-    latestValue = "";
-    flagCommit = false;
-
-    switch (buttonValue)
-    {
-    case 'A':
-    {
-        menu = 1;
-        return;
-    }
-    case 'B':
-    {
-        menu = 2;
-        return;
-    }
-    case 'C':
-    {
-        menu = 3;
-        pass = !pass;
-        flagSendCmd = true;
-        return;
-    }
-    case 'D':
-    {
-        menu = 4;
-        return;
-    }
-    default:
-        break;
-    }
+    // shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[hour]);
+    shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[minute]);
+    shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[second]);
 }
 
-void checkNumberValue(char buttonValue)
-{
-    if (buttonValue < '0' || buttonValue > '9' || menu < 1 || menu > 2 || flagCommit)
-        return;
-
-    if (inputTime.length() >= 6)
-    {
-        inputTime = "";
-    }
-
-    inputTime += buttonValue;
-}
-
-void checkConfirm(char buttonValue)
-{
-    if (buttonValue != '#' && buttonValue != '*')
-        return;
-
-    if (buttonValue == '#')
-    {
-        flagMenuChange = true;
-
-        if ((flagCommit && inputTime.length() >= 6) || menu == 4)
+void timeTask(void *pvParameters) {
+    while (1) {
+        if (clockTime[5] >= 59)
         {
-            flagSendCmd = true;
-            flagCommit = false;
-            return;
+            clockTime[5] = 0;
+            clockTime[4]++;
         }
 
-        if (inputTime.length() >= 6)
-            flagCommit = true;
-    }
+        if (clockTime[4] >= 59)
+        {
+            clockTime[4] = 0;
+            clockTime[3]++;
+        }
 
-    if (buttonValue == '*')
-    {
-        inputTime = "";
-        flagCommit = false;
+        if (clockTime[3] >= 23)
+        {
+            clockTime[3] = 0;
+            clockTime[2]++;
+        }
+
+        if (clockTime[2] >= 30) {
+            clockTime[2] = 0;
+            clockTime[1]++;
+        }
+
+        if (clockTime[1] >= 12) {
+            clockTime[1] = 0;
+            clockTime[0]++;
+        }
+
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }
 
-void showHomeMenu()
+void ledTask(void *pvParameters)
 {
-    lcd.print("  CLOCK REMOTE  ");
-    lcd.setCursor(0, 1);
-    lcd.print("PRESS MENU A - D");
+    while (1)
+    {
+        if (flagLedUpdate)
+        {
+            clockControl();
+        }
+    }
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
 }
 
-void showTimerMenu()
-{
-    if (flagCommit)
-    {
-        lcd.print(" PRESS # TO RUN ");
-        lcd.setCursor(0, 1);
-        lcd.print("     " + inputTime + "      ");
-        latestValue = inputTime;
-        return;
-    }
+// void radioSetup()
+// {
+//     if (!radio.begin())
+//     {
+//         Serial.println("Radio Begin Failed");
+//         while (true)
+//             ;
+//     }
 
-    lcd.print("TIMER    " + inputTime);
-    latestValue = inputTime;
-}
+//     radio.openReadingPipe(1, PIPE_ADDRESS);
+//     radio.startListening();
 
-void showClockMenu()
-{
-    if (flagCommit)
-    {
-        lcd.print(" PRESS # TO SET ");
-        lcd.setCursor(0, 1);
-        lcd.print("     " + inputTime + "      ");
-        Serial.println("LCD Display: " + inputTime);
-        latestValue = inputTime;
-        return;
-    }
-
-    lcd.print("CLOCK    " + inputTime);
-    Serial.println("Menu 2");
-    latestValue = inputTime;
-}
-
-void showPauseMenu()
-{
-    if (pass)
-    {
-        lcd.print("   STOP TIMER   ");
-        return;
-    }
-
-    lcd.print("   RUN  TIMER   ");
-}
-
-void showResetMenu()
-{
-    if (flagCommit)
-    {
-        lcd.print("   RESET DONE   ");
-        menu = 0;
-        delay(3000);
-        latestValue = inputTime;
-        return;
-    }
-
-    lcd.print("    PRESS  #    ");
-    lcd.setCursor(0, 1);
-    lcd.print(" TO RESET TIMER ");
-    latestValue = inputTime;
-}
-
-void showMenu()
-{
-    if (latestValue == inputTime && !flagMenuChange)
-        return;
-
-    if (flagMenuChange)
-        flagMenuChange = false;
-
-    lcd.clear();
-    lcd.setCursor(0, 0);
-
-    switch (menu)
-    {
-    case 0:
-        showHomeMenu();
-        return;
-    case 1:
-        showTimerMenu();
-        return;
-    case 2:
-        showClockMenu();
-        return;
-    case 3:
-        showPauseMenu();
-        return;
-    case 4:
-        showResetMenu();
-        return;
-    default:
-        break;
-    }
-}
-
-void readKeypad()
-{
-    bool pressed = keyPad.isPressed();
-    Serial.println("Keypad pressed: " + String(pressed));
-
-    if (pressed == true && lockKeypad == false)
-    {
-        char keypadValue = keyPad.getChar();
-
-        lockKeypad = true;
-        Serial.println("Keypad Lock: " + String(lockKeypad));
-
-        checkNumberValue(keypadValue);
-        checkConfirm(keypadValue);
-        selectMenu(keypadValue);
-    }
-
-    if (pressed == false && lockKeypad == true)
-    {
-        lockKeypad = false;
-        Serial.println("Keypad Lock: " + String(lockKeypad));
-        Serial.println("Keypad RELEASE!");
-    }
-}
-
-void sendRadio()
-{
-    if (!flagSendCmd)
-        return;
-
-    if (menu > 4)
-    {
-        Serial.println("Send Radio: Error");
-        Serial.println("Invalid Menu Type: " + String(menu));
-        flagSendCmd = false;
-        return;
-    }
-
-    int stringLength = 9;
-
-    String dataToSend = String(menu) + "#";
-    if (menu == 1 || menu == 2)
-        dataToSend += inputTime;
-    else if (menu == 3)
-        dataToSend += "00000" + String(pass);
-    else
-        dataToSend += "000000";
-
-    char byteToSend[stringLength];
-    dataToSend.toCharArray(byteToSend, stringLength);
-
-    radio.write(byteToSend, stringLength);
-    radio.flush_tx();
-
-    Serial.println("Send Radio: " + dataToSend);
-
-    flagSendCmd = false;
-}
-
-void radioSetup()
-{
-    if (!radio.begin())
-    {
-        Serial.println("\nERROR: cannot communicate to radio.\nPlease reboot.\n");
-        while (1);
-    }
-    radio.openWritingPipe(PIPE_ADDRESS);
-
-    Serial.println("Radio: OK.");
-
-    lcd.print(F("Radio is OK...")); //(F()) saves string to flash & keeps dynamic memory free
-    delay(2000);
-    lcd.clear();
-}
-
-void keypadSetup()
-{
-    if (!keyPad.begin())
-    {
-        Serial.println("\nERROR: cannot communicate to keypad.\nPlease reboot.\n");
-        while (1);
-    }
-    keyPad.loadKeyMap(keymap);
-
-    Serial.println("Keypad: OK.");
-
-    lcd.print(F("Keypad is OK...")); //(F()) saves string to flash & keeps dynamic memory free
-    delay(2000);
-    lcd.clear();
-}
-
-void lcdSetup()
-{
-    while (lcd.begin(COLUMS, ROWS, LCD_5x8DOTS) != 1) // colums, rows, characters size
-    {
-        Serial.println(F("PCF8574 is not connected or lcd pins declaration is wrong. Only pins numbers: 4,5,6,16,11,12,13,14 are legal."));
-        delay(5000);
-    }
-
-    Serial.println("LCD: OK.");
-    lcd.print(F("LCD is OK...")); //(F()) saves string to flash & keeps dynamic memory free
-    delay(2000);
-    lcd.clear();
-}
+//     Serial.println("Radio Setup: done");
+// }
 
 void setup()
 {
-    Wire.begin();
-    Wire.setClock(400000);
-    Wire.setTimeOut(1000);
+    pinMode(DATA_PIN, OUTPUT);
+    pinMode(CLOCK_PIN, OUTPUT);
 
     Serial.begin(115200);
+    EEPROM.begin(256);
 
-    lcdSetup();
-    radioSetup();
-    keypadSetup();
+    xTaskCreate(&ledTask, "LED_TASK", 32000, NULL, 0, NULL);
+    xTaskCreate(&timeTask, "TIME_TASK", 32000, NULL, 1, NULL);
 
     Serial.println("Setup: done");
-    lcd.print(F("Setup: done"));
     delay(2000);
 
-    Serial.println("Remote Start");
-    flagMenuChange = true;
+    Serial.println("Clock Start");
 }
 
 void loop()
 {
-    if (millis() % 200 == 0)
-        showMenu();
+    if (radio.available())
+    {
+        char getFromRead[10];
+        while (radio.available())
+            radio.read(getFromRead, 10);
 
-    if (millis() % 250 == 0)
-        readKeypad();
-    
-    if (millis() % 300 == 0)
-        sendRadio();    
+        String cmd = String(getFromRead);
+        menu = cmd.substring(0, 1).toInt();
+        inputTime = cmd.substring(2, 11);
+        Serial.println("Radio Receive: " + String(getFromRead));
+    }
 }
