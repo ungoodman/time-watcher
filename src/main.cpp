@@ -5,8 +5,8 @@
 #include <SPI.h>
 #include <RF24.h>
 
-#define DATA_PIN 8
-#define CLOCK_PIN 9
+#define DATA_PIN 4
+#define CLOCK_PIN 3
 #define PIPE_ADDRESS 0xE8E8F0F0E1LL
 
 // digit 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
