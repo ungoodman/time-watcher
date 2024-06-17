@@ -63,15 +63,13 @@ void clockControl()
 
 void timeTask()
 {
-    clockTime[5]++;
-
-    if (clockTime[5] >= 59)
+    if (clockTime[5] >= 60)
     {
         clockTime[5] = 0;
         clockTime[4]++;
     }
 
-    if (clockTime[4] >= 59)
+    if (clockTime[4] >= 60)
     {
         clockTime[4] = 0;
         // clockTime[3]++;
@@ -95,7 +93,7 @@ void timeTask()
     //     clockTime[0]++;
     // }
 
-    Serial.println(clockTime[5]);
+    Serial.println(clockTime[5]++);
 }
 
 // void radioSetup()
