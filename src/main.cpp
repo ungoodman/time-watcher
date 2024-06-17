@@ -66,14 +66,14 @@ void timeTask()
     if (clockTime[5] >= 60)
     {
         clockTime[5] = 0;
-        clockTime[4]++;
+        // clockTime[4]++;
     }
 
-    if (clockTime[4] >= 60)
-    {
-        clockTime[4] = 0;
-        // clockTime[3]++;
-    }
+    // if (clockTime[4] >= 60)
+    // {
+    //     clockTime[4] = 0;
+    //     clockTime[3]++;
+    // }
 
     // if (clockTime[3] >= 23)
     // {
@@ -142,6 +142,8 @@ void setup()
 //     Serial.println("Radio Receive: " + String(getFromRead));
 // }
 
+uint32_t lastTime = 0;
+
 void loop()
 {
     // if (millis() % 300 == 0)
@@ -150,6 +152,8 @@ void loop()
     if (millis() % 100 == 0)
         clockControl();
 
-    if (millis() % 1000 == 0)
+    if (lastTime - millis() >= 1000) {
         timeTask();
+        lastTime = millis();
+    }
 }
