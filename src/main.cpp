@@ -63,6 +63,8 @@ void clockControl()
 
 void timeTask()
 {
+    clockTime[5]++;
+
     if (clockTime[5] >= 59)
     {
         clockTime[5] = 0;
@@ -92,6 +94,8 @@ void timeTask()
     //     clockTime[1] = 0;
     //     clockTime[0]++;
     // }
+
+    Serial.println(clockTime[5]);
 }
 
 // void radioSetup()
