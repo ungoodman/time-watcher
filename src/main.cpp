@@ -147,13 +147,11 @@ uint32_t lastTime = 0;
 void loop()
 {
     // if (millis() % 300 == 0)
-    //     listenRadio();
-
-    if (millis() % 100 == 0)
-        clockControl();
+    //     listenRadio();        
 
     if (lastTime - millis() >= 1000) {
         timeTask();
+        clockControl();
         lastTime = millis();
     }
 }
