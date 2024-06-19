@@ -25,45 +25,72 @@ byte ledDigitBytes[] = {
 // String inputTime = ""; //  ตัวแปร  ค่าล่าสุด
 // String latestValue = "";
 
-// int menu;
+int menu;
 
 // bool flagLedUpdate;
 // bool flagClockUpdate;
-// bool flagTimerUpdate;
-// bool flagTimerPause;
-// bool flagReceiveCmd;
+bool flagTimerUpdate;
+bool flagTimerPause;
+bool flagReceiveCmd;
 
-// int timerTime[3];
+int timerTime[3];
 int clockTime[6];
+String radioData;
 
 RF24 radio(4, 5);
 
-// void executeCmd()
-// {
-//     if (menu == 1 || menu == 2)
-//     {
-//         /* code */
-//     }
-//     else if (menu == 3)
-//     {
-//         /* code */
-//     }
+void setTime(String data) {
+    int hour = data.substring(0, 2).toInt();
+    int minute = data.substring(3, 5).toInt();
+    int second = data.substring(6, 8).toInt();
 
-//     flagTimerUpdate = true;
-// }
+    timerTime[0] = hour;
+    timerTime[1] = minute;
+    timerTime[2] = second;
+}
 
-int lastSecStDigit;
-
-void clockControl()
+void executeCmd()
 {
-    int secondStDigit = clockTime[5] / 10;
-    int secondNdDigit = clockTime[5] % 10;
+    if (menu == 1)
+    {
+        return;
+    } else if (menu == 2) {
+        setTime(radioData);
+        return;
+    }
+    else if (menu == 3)
+    {
+        return;
+    }
 
-    if (secondStDigit != lastSecStDigit)
-        shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[secondStDigit]);
-    shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[secondNdDigit]);
+    for (int i = 0; i < 3; i++)
+        timerTime[i] = 0;
 
-    lastSecStDigit = secondStDigit;
+    flagTimerUpdate = true;
+}
+
+void ledControl() {
+    if (!flagTimerUpdate || flagTimerPause)
+        return;
+
+    int timerTimeSize = sizeof(timerTime) / sizeof(int);
+
+    for (int i = 0; i < timerTimeSize; i++)
+        setLed(timerTime[i]);
+}
+
+int lastFirstDigit;
+
+void setLed(int timeValue)
+{
+    int firstDigit = timeValue / 10;
+    int secondDigit = timeValue % 10;
+
+    if (firstDigit != lastFirstDigit)
+        shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[firstDigit]);
+    shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[secondDigit]);
+
+    lastFirstDigit = secondDigit;
 }
 
 void timeTask()
@@ -98,23 +125,59 @@ void timeTask()
     //     clockTime[0]++;
     // }
     clockTime[5] += 1;
+
+    for (int i = 0; i < 6; i++)
+        clockControl(timerTime[i]);
+
     Serial.println(clockTime[5]);
 }
 
-// void radioSetup()
-// {
-//     if (!radio.begin())
-//     {
-//         Serial.println("Radio Begin Failed");
-//         while (true)
-//             ;
-//     }
+bool isAllZero(int arr[], int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        if (arr[i] != 0)
+            return false;
+    }
+    return true;
+}
 
-//     radio.openReadingPipe(1, PIPE_ADDRESS);
-//     radio.startListening();
+void timerTask()
+{
+    if (flagTimerPause)
+        return;
+    
+    int timerTimeSize = sizeof(timerTime) / sizeof(int);
 
-//     Serial.println("Radio Setup: done");
-// }
+    if (isAllZero(timerTime, timerTimeSize))
+        return;
+
+    for (int i = timerTimeSize; i > 0; i--)
+    {
+        if (timerTime[i] == 0)
+        {
+            timerTime[i] = 9;
+            timerTime[i]--;
+        }
+    }
+
+    timerTime[timerTimeSize]--;
+}
+
+void radioSetup()
+{
+    if (!radio.begin())
+    {
+        Serial.println("Radio Begin Failed");
+        while (true)
+            ;
+    }
+
+    radio.openReadingPipe(1, PIPE_ADDRESS);
+    radio.startListening();
+
+    Serial.println("Radio Setup: done");
+}
 
 void setup()
 {
@@ -122,9 +185,9 @@ void setup()
     pinMode(CLOCK_PIN, OUTPUT);
 
     Serial.begin(115200);
-    // EEPROM.begin();
+    EEPROM.begin();
 
-    // radioSetup();
+    radioSetup();
 
     Serial.println("Setup: done");
     delay(2000);
@@ -132,31 +195,38 @@ void setup()
     Serial.println("Clock Start");
 }
 
-// void listenRadio()
-// {
-//     if (!radio.available())
-//         return;
+void listenRadio()
+{
+    if (!radio.available())
+        return;
 
-//     char getFromRead[10];
-//     while (radio.available())
-//         radio.read(getFromRead, 10);
+    char getFromRead[10];
+    while (radio.available())
+        radio.read(getFromRead, 10);
 
-//     String cmd = String(getFromRead);
-//     menu = cmd.substring(0, 1).toInt();
-//     inputTime = cmd.substring(2, 11);
-//     Serial.println("Radio Receive: " + String(getFromRead));
-// }
+    String cmd = String(getFromRead);
+    menu = cmd.substring(0, 1).toInt();
+    radioData = cmd.substring(2, 11);
+    Serial.println("Radio Receive: " + String(getFromRead));
+}
 
 uint32_t lastTime = 0;
+uint32_t radioTime;
 
 void loop()
 {
-    // if (millis() % 300 == 0)
-    //     listenRadio();        
+    if (millis() - radioTime >= 300) {
+        listenRadio();
 
-    if (millis() - lastTime >= 1000) {
-        timeTask();
-        clockControl();
+        radioTime = millis();
+    }
+
+    if (millis() - lastTime >= 1000)
+    {
+        // timeTask();
+        timerTask();
+        ledControl();        
+        
         lastTime = millis();
     }
 }
