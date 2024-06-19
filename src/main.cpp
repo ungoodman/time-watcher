@@ -5,8 +5,8 @@
 #include <SPI.h>
 #include <RF24.h>
 
-#define DATA_PIN 4
-#define CLOCK_PIN 3
+#define DATA_PIN 3
+#define CLOCK_PIN 2
 #define PIPE_ADDRESS 0xE8E8F0F0E1LL
 
 // digit 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
@@ -37,9 +37,10 @@ int timerTime[3];
 int clockTime[6];
 String radioData;
 
-RF24 radio(4, 5);
+RF24 radio(8, 7);
 
-void setTime(String data) {
+void setTime(String data)
+{
     int hour = data.substring(0, 2).toInt();
     int minute = data.substring(3, 5).toInt();
     int second = data.substring(6, 8).toInt();
@@ -55,7 +56,9 @@ void executeCmd()
     {
         setTime(radioData);
         return;
-    } else if (menu == 2) {
+    }
+    else if (menu == 2)
+    {
         return;
     }
     else if (menu == 3)
@@ -87,7 +90,8 @@ void setLed(int timeValue)
     lastFirstDigit = secondDigit;
 }
 
-void ledControl() {
+void ledControl()
+{
     if (!flagTimerUpdate || flagTimerPause)
         return;
 
@@ -150,8 +154,10 @@ void timerTask()
 {
     if (flagTimerPause)
         return;
-    
-    int timerTimeSize = sizeof(timerTime) / sizeof(int);
+
+    int timerTimeSize = sizeof(timerTime);
+
+    Serial.println("Size: " + String(timerTimeSize));
 
     if (isAllZero(timerTime, timerTimeSize))
         return;
@@ -193,6 +199,8 @@ void setup()
 
     radioSetup();
 
+    for (int i = 0; i < 3; i++)
+        setLed(timerTime[i]);
     Serial.println("Setup: done");
     delay(2000);
 
@@ -219,7 +227,8 @@ uint32_t radioTime;
 
 void loop()
 {
-    if (millis() - radioTime >= 300) {
+    if (millis() - radioTime >= 300)
+    {
         listenRadio();
 
         radioTime = millis();
@@ -229,8 +238,8 @@ void loop()
     {
         // timeTask();
         timerTask();
-        ledControl();        
-        
+        ledControl();
+
         lastTime = millis();
     }
 }
