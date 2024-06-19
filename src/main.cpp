@@ -76,18 +76,25 @@ void executeCmd()
     flagTimerUpdate = true;
 }
 
-int lastFirstDigit;
+// int lastFirstDigit;
 
-void setLed(int timeValue)
+void setLed(int timeValue[])
 {
-    int firstDigit = timeValue / 10;
-    int secondDigit = timeValue % 10;
+    int timeToShow[6] = {0, 0, 0, 0, 0, 0};
 
-    if (firstDigit != lastFirstDigit)
-        shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[firstDigit]);
+    int firstDigit = timeValue[0] / 10;
+    int secondDigit = timeValue[0] % 10;
+    int thirdDigit = timeValue[1] / 10;
+    int fourthDigit = timeValue[1] % 10;
+    int fifthDigit = timeValue[2] / 10;
+    int sixthDigit = timeValue[2] % 10;
+
+    shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[firstDigit]);
     shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[secondDigit]);
-
-    lastFirstDigit = secondDigit;
+    shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[thirdDigit]);
+    shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[fourthDigit]);
+    shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[fifthDigit]);
+    shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[sixthDigit]);
 }
 
 void ledControl()
@@ -95,10 +102,7 @@ void ledControl()
     if (!flagTimerUpdate || flagTimerPause)
         return;
 
-    int timerTimeSize = sizeof(timerTime) / sizeof(int);
-
-    for (int i = 0; i < timerTimeSize; i++)
-        setLed(timerTime[i]);
+    setLed(timerTime);
 }
 
 void timeTask()
@@ -199,10 +203,8 @@ void setup()
 
     radioSetup();
 
-    for (int i = 0; i < 3; i++)
-        setLed(timerTime[i]);
-    flagTimerUpdate = true;
-    
+    setLed(timerTime);
+
     Serial.println("Setup: done");
     delay(2000);
 
