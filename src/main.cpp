@@ -201,6 +201,8 @@ void setup()
 
     for (int i = 0; i < 3; i++)
         setLed(timerTime[i]);
+    flagTimerUpdate = true;
+    
     Serial.println("Setup: done");
     delay(2000);
 
