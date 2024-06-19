@@ -155,7 +155,7 @@ void timerTask()
     if (flagTimerPause)
         return;
 
-    int timerTimeSize = sizeof(timerTime);
+    int timerTimeSize = sizeof(timerTime) / sizeof(int);
 
     Serial.println("Size: " + String(timerTimeSize));
 
@@ -166,8 +166,8 @@ void timerTask()
     {
         if (timerTime[i] == 0)
         {
-            timerTime[i] = 9;
-            timerTime[i]--;
+            timerTime[i] = 59;
+            timerTime[i - 1]--;
         }
     }
 
