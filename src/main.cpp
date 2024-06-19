@@ -53,9 +53,9 @@ void executeCmd()
 {
     if (menu == 1)
     {
+        setTime(radioData);
         return;
     } else if (menu == 2) {
-        setTime(radioData);
         return;
     }
     else if (menu == 3)
