@@ -69,16 +69,6 @@ void executeCmd()
     flagTimerUpdate = true;
 }
 
-void ledControl() {
-    if (!flagTimerUpdate || flagTimerPause)
-        return;
-
-    int timerTimeSize = sizeof(timerTime) / sizeof(int);
-
-    for (int i = 0; i < timerTimeSize; i++)
-        setLed(timerTime[i]);
-}
-
 int lastFirstDigit;
 
 void setLed(int timeValue)
@@ -93,13 +83,23 @@ void setLed(int timeValue)
     lastFirstDigit = secondDigit;
 }
 
+void ledControl() {
+    if (!flagTimerUpdate || flagTimerPause)
+        return;
+
+    int timerTimeSize = sizeof(timerTime) / sizeof(int);
+
+    for (int i = 0; i < timerTimeSize; i++)
+        setLed(timerTime[i]);
+}
+
 void timeTask()
 {
-    if (clockTime[5] >= 60)
-    {
-        clockTime[5] = 0;
-        // clockTime[4]++;
-    }
+    // if (clockTime[5] >= 60)
+    // {
+    //     clockTime[5] = 0;
+    //     // clockTime[4]++;
+    // }
 
     // if (clockTime[4] >= 60)
     // {
@@ -124,12 +124,12 @@ void timeTask()
     //     clockTime[1] = 0;
     //     clockTime[0]++;
     // }
-    clockTime[5] += 1;
+    // clockTime[5] += 1;
 
-    for (int i = 0; i < 6; i++)
-        clockControl(timerTime[i]);
+    // for (int i = 0; i < 6; i++)
+    //     clockControl(timerTime[i]);
 
-    Serial.println(clockTime[5]);
+    // Serial.println(clockTime[5]);
 }
 
 bool isAllZero(int arr[], int size)
