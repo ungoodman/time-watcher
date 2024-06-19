@@ -60,6 +60,10 @@ void executeCmd()
     }
     else if (menu == 3)
     {
+        if (radioData == "000000")
+            flagTimerPause = false;
+        else
+            flagTimerPause = true;
         return;
     }
 
