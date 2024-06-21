@@ -41,6 +41,9 @@ void loop()
         shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[i]);
 
         i++;
+        if (i > 9)
+            i = 0;
+        
         lastTime = millis();
     }
 }
