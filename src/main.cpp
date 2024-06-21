@@ -33,7 +33,7 @@ bool flagTimerUpdate;
 bool flagTimerPause;
 bool flagReceiveCmd;
 
-int timerTime[3];
+int timerTime[3] = {0, 10, 0};
 int clockTime[6];
 String radioData;
 
@@ -95,6 +95,8 @@ void setLed(int timeValue[])
     shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[fourthDigit]);
     shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[fifthDigit]);
     shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[sixthDigit]);
+
+    Serial.println("Set LED: " + String(firstDigit) + String(secondDigit) + String(thirdDigit) + String(fourthDigit) + String(fifthDigit) + String(sixthDigit));
 }
 
 void ledControl()
@@ -160,8 +162,6 @@ void timerTask()
         return;
 
     int timerTimeSize = sizeof(timerTime) / sizeof(int);
-
-    Serial.println("Size: " + String(timerTimeSize));
 
     if (isAllZero(timerTime, timerTimeSize))
         return;
