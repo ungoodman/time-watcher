@@ -1,8 +1,9 @@
 #include <Arduino.h>
 #pragma GCC optimize("O3") // code optimisation controls - "O2" & "O3" code performance, "Os" code size
 
-#define DATA_PIN 3
-#define CLOCK_PIN 2
+#define DATA_A_PIN 4
+#define DATA_B_PIN 5
+#define CLOCK_PIN 3
 
 // digit 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 byte ledDigitBytes[] = {
@@ -19,7 +20,8 @@ byte ledDigitBytes[] = {
 
 void setup()
 {
-    pinMode(DATA_PIN, OUTPUT);
+    pinMode(DATA_A_PIN, OUTPUT);
+    pinMode(DATA_B_PIN, OUTPUT);
     pinMode(CLOCK_PIN, OUTPUT);
 
     Serial.begin(115200);
@@ -36,14 +38,12 @@ void loop()
 {
     if (millis() - lastTime >= 200)
     {
-        shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[i]);
-        shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[i]);
-        shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[i]);
+        shiftOut(DATA_A_PIN, CLOCK_PIN, LSBFIRST, B01100000);
+        shiftOut(DATA_A_PIN, CLOCK_PIN, LSBFIRST, B01100000);
 
-        i++;
-        if (i > 9)
-            i = 0;
-        
+        shiftOut(DATA_B_PIN, CLOCK_PIN, LSBFIRST, B11011010);
+        shiftOut(DATA_B_PIN, CLOCK_PIN, LSBFIRST, B11011010);
+
         lastTime = millis();
     }
 }
