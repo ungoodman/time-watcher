@@ -40,23 +40,46 @@ void writeSegmentDigit(byte value)
     digitalWrite(LATCH_PIN, HIGH);
 }
 
+int time[2] = {2, 0};
 int x;
+
+void timeTask() {
+    if (time[0] == 0 && time[1] == 0)
+        return;
+    
+    time[1]--;
+
+    if (time[1] < 0)
+    {
+        time[1] = 59;
+        time[0]--;
+    }
+    
+    if (time[0] < 0)
+    {
+        time[0] = 0;
+    }
+}
+
+void showTime() {
+    if (time[0] == 0 && time[1] == 0)
+        return;
+        
+    int toShow[4] = {time[0] / 10, time[0] % 10, time[1] / 10, time[1] % 10};
+    
+    for (int i = 0; i < 4; i++)
+    {
+        int index = toShow[i];
+        writeSegmentDigit(ledDigitBytes[index]);
+    }
+}
 
 void loop()
 {
     if (millis() - lastTime >= 1000)
     {
-        for (int i = 0; i < 5; i++)
-        {
-            writeSegmentDigit(ledDigitBytes[x]);
-        }
-        
-        x++;
-
-        if (x > 9)
-        {
-            x = 0;
-        }
+        timeTask();
+        showTime();
         
         lastTime = millis();
     }
