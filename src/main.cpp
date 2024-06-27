@@ -77,6 +77,9 @@ void setup()
 
     Serial.begin(SERIAL_BAUD_RATE);
 
+    for (int i = 0; i < 4; i++)
+        writeSegmentDigit(ledDigitBytes[0]);
+    
     radioSetup();
 
     Serial.println("program setup: done");
@@ -130,28 +133,28 @@ void listenRadio() {
         radio.read(&message, 10);
 
     String messageStr = String(message);
-    Serial.println(messageStr);
+    Serial.println("command: " + messageStr);
 
     int menu = messageStr.substring(0, 1).toInt();
 
     if (menu == 1)
     {
-        time[0] = messageStr.substring(3, 5).toInt();
-        time[1] = messageStr.substring(5, 7).toInt();
+        time[0] = messageStr.substring(4, 6).toInt();
+        time[1] = messageStr.substring(6, 8).toInt();
 
         Serial.println("time: " + String(time[0]) + ":" + String(time[1]));
 
         flagDisplayUpdate = true;
     } else if (menu == 3)
     {
-        Serial.println("count down: " + String(messageStr.substring(6, 7).toInt()));
-        flagCountDown = messageStr.substring(6, 7).toInt();
+        flagCountDown = messageStr.substring(7, 8).toInt();
+        Serial.println("count down: " + String(flagCountDown));
     }
 }
 
 void loop()
 {
-    if (millis() - radioListenTime >= 500)
+    if (millis() - radioListenTime >= 250)
     {
         listenRadio();
 
