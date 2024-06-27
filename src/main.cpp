@@ -233,6 +233,8 @@ void writeSegmentDigit(byte value)
     digitalWrite(LATCH_PIN, HIGH);
 }
 
+int x;
+
 void loop()
 {
     // if (millis() - radioTime >= 300)
@@ -246,9 +248,10 @@ void loop()
     {
         for (int i = 0; i < 5; i++)
         {
-            writeSegmentDigit(ledDigitBytes[menu]);
+            writeSegmentDigit(ledDigitBytes[x]);
         }
         
+        x++;
         lastTime = millis();
     }
 }
