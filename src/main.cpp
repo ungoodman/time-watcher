@@ -5,8 +5,9 @@
 #include <SPI.h>
 #include <RF24.h>
 
-#define DATA_PIN 3
-#define CLOCK_PIN 2
+#define DATA_PIN 5
+#define CLOCK_PIN 3
+#define LATCH_PIN 4
 #define PIPE_ADDRESS 0xE8E8F0F0E1LL
 
 // digit 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
@@ -22,13 +23,8 @@ byte ledDigitBytes[] = {
     B11111110,
     B11110110};
 
-// String inputTime = ""; //  ตัวแปร  ค่าล่าสุด
-// String latestValue = "";
-
 int menu;
 
-// bool flagLedUpdate;
-// bool flagClockUpdate;
 bool flagTimerUpdate;
 bool flagTimerPause;
 bool flagReceiveCmd;
@@ -197,16 +193,17 @@ void setup()
 {
     pinMode(DATA_PIN, OUTPUT);
     pinMode(CLOCK_PIN, OUTPUT);
+    pinMode(LATCH_PIN, OUTPUT);
 
     Serial.begin(115200);
-    EEPROM.begin();
+    // EEPROM.begin();
 
-    radioSetup();
+    // radioSetup();
 
-    setLed(timerTime);
+    // setLed(timerTime);
 
     Serial.println("Setup: done");
-    delay(2000);
+    // delay(2000);
 
     Serial.println("Clock Start");
 }
@@ -229,21 +226,29 @@ void listenRadio()
 uint32_t lastTime = 0;
 uint32_t radioTime;
 
+void writeSegmentDigit(byte value)
+{
+    digitalWrite(LATCH_PIN, LOW);
+    shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, value);
+    digitalWrite(LATCH_PIN, HIGH);
+}
+
 void loop()
 {
-    if (millis() - radioTime >= 300)
-    {
-        listenRadio();
+    // if (millis() - radioTime >= 300)
+    // {
+    //     listenRadio();
 
-        radioTime = millis();
-    }
+    //     radioTime = millis();
+    // }
 
     if (millis() - lastTime >= 1000)
     {
-        // timeTask();
-        timerTask();
-        ledControl();
-
+        for (int i = 0; i < 5; i++)
+        {
+            writeSegmentDigit(ledDigitBytes[menu]);
+        }
+        
         lastTime = millis();
     }
 }
