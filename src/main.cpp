@@ -64,7 +64,7 @@ void timeTask() {
 void showTime() {
     if (time[0] == 0 && time[1] == 0)
         return;
-        
+
     int toShow[4] = {time[0] / 10, time[0] % 10, time[1] / 10, time[1] % 10};
     
     for (int i = 0; i < 4; i++)
@@ -78,8 +78,8 @@ void loop()
 {
     if (millis() - lastTime >= 1000)
     {
-        timeTask();
         showTime();
+        timeTask();
         
         lastTime = millis();
     }
