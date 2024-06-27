@@ -41,10 +41,10 @@ void writeSegmentDigit(byte value)
 }
 
 int time[2] = {2, 0};
-int x;
+bool flagCountDown = true;
 
 void timeTask() {
-    if (time[0] == 0 && time[1] == 0)
+    if (!flagCountDown)
         return;
     
     time[1]--;
@@ -62,7 +62,7 @@ void timeTask() {
 }
 
 void showTime() {
-    if (time[0] == 0 && time[1] == 0)
+    if (!flagCountDown)
         return;
 
     int toShow[4] = {time[0] / 10, time[0] % 10, time[1] / 10, time[1] % 10};
@@ -72,6 +72,9 @@ void showTime() {
         int index = toShow[i];
         writeSegmentDigit(ledDigitBytes[index]);
     }
+
+    if (time[0] == 0 && time[1] == 0 && flagCountDown)
+        flagCountDown = false;    
 }
 
 void loop()
