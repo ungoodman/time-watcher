@@ -13,18 +13,29 @@
 #define CE_PIN 8
 #define CSN_PIN 7
 
+#define DIGIT_ZERO B11111100
+#define DIGIT_ONE B01100000
+#define DIGIT_TWO B11011010
+#define DIGIT_THREE B11110010
+#define DIGIT_FOUR B01100110
+#define DIGIT_FIVE B10110110
+#define DIGIT_SIX B10111110
+#define DIGIT_SEVEN B11100000
+#define DIGIT_EIGHT B11111110
+#define DIGIT_NINE B11110110
+
 // digit 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 byte ledDigitBytes[] = {
-    B11111100,
-    B01100000,
-    B11011010,
-    B11110010,
-    B01100110,
-    B10110110,
-    B10111110,
-    B11100000,
-    B11111110,
-    B11110110};
+    DIGIT_ZERO,
+    DIGIT_ONE,
+    DIGIT_TWO,
+    DIGIT_THREE,
+    DIGIT_FOUR,
+    DIGIT_FIVE,
+    DIGIT_SIX,
+    DIGIT_SEVEN,
+    DIGIT_EIGHT,
+    DIGIT_NINE};
 
 byte error = B10011110;
 
@@ -35,6 +46,13 @@ uint32_t radioListenTime;
 int time[2] = {0, 0};
 bool flagCountDown = true;
 bool flagDisplayUpdate;
+
+void writeSegmentDigit(byte value)
+{
+    digitalWrite(LATCH_PIN, LOW);
+    shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, value);
+    digitalWrite(LATCH_PIN, HIGH);
+}
 
 void radioSetup() {
     if (!radio.begin())
@@ -63,13 +81,6 @@ void setup()
 
     Serial.println("program setup: done");
     Serial.println("program start");
-}
-
-void writeSegmentDigit(byte value)
-{
-    digitalWrite(LATCH_PIN, LOW);
-    shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, value);
-    digitalWrite(LATCH_PIN, HIGH);
 }
 
 void timeTask() {
@@ -119,6 +130,8 @@ void listenRadio() {
         radio.read(&message, 10);
 
     String messageStr = String(message);
+    Serial.println(messageStr);
+
     int menu = messageStr.substring(0, 1).toInt();
 
     if (menu == 1)
@@ -126,9 +139,12 @@ void listenRadio() {
         time[0] = messageStr.substring(3, 5).toInt();
         time[1] = messageStr.substring(5, 7).toInt();
 
+        Serial.println("time: " + String(time[0]) + ":" + String(time[1]));
+
         flagDisplayUpdate = true;
     } else if (menu == 3)
     {
+        Serial.println("count down: " + String(messageStr.substring(6, 7).toInt()));
         flagCountDown = messageStr.substring(6, 7).toInt();
     }
 }
