@@ -3,6 +3,7 @@
 #include <RF24.h>
 #pragma GCC optimize("O3") // code optimisation controls - "O2" & "O3" code performance, "Os" code size
 
+#define TOTAL_DIGITS_LENGTH 9
 #define SERIAL_BAUD_RATE 115200
 
 #define LATCH_PIN 4
@@ -43,7 +44,9 @@ RF24 radio(CE_PIN, CSN_PIN);
 
 uint32_t lastTime;
 uint32_t radioListenTime;
-int time[2] = {0, 0};
+int initCountDown[5] = {0, 0, 0, 0, 0};
+int timeCountDown[5] = {0, 0, 0, 0, 0};
+int timeClock[4] = {0, 0, 0, 0};
 bool flagCountDown = true;
 bool flagDisplayUpdate;
 
@@ -77,7 +80,7 @@ void setup()
 
     Serial.begin(SERIAL_BAUD_RATE);
 
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < TOTAL_DIGITS_LENGTH; i++)
         writeSegmentDigit(ledDigitBytes[0]);
     
     radioSetup();
@@ -90,17 +93,29 @@ void timeTask() {
     if (!flagCountDown)
         return;
     
-    time[1]--;
+    timeCountDown[4]--;
 
-    if (time[1] < 0)
+    if (timeCountDown[4] < 0)
     {
-        time[1] = 59;
-        time[0]--;
+        timeCountDown[4] = 9;
+        timeCountDown[3]--;
+    }
+
+    if (timeCountDown[3] < 0)
+    {
+        timeCountDown[3] = 5;
+        timeCountDown[2]--;
+    }
+
+    if (timeCountDown[2] < 0)
+    {
+        timeCountDown[1] = 9;
+        timeCountDown[0]--;
     }
     
-    if (time[0] < 0)
+    if (timeCountDown[0] < 0)
     {
-        time[0] = 0;
+        timeCountDown[0] = 0;
     }
 
     flagDisplayUpdate = true;
@@ -110,9 +125,19 @@ void showTime() {
     if (!flagDisplayUpdate)
         return;
 
-    int toShow[4] = {time[0] / 10, time[0] % 10, time[1] / 10, time[1] % 10};
+    int toShow[TOTAL_DIGITS_LENGTH] = {
+        timeCountDown[0], 
+        timeCountDown[1], 
+        timeCountDown[2], 
+        timeCountDown[3],
+        timeCountDown[4],
+        timeClock[0], 
+        timeClock[1], 
+        timeClock[2],
+        timeClock[3]
+    };
     
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < TOTAL_DIGITS_LENGTH; i++)
     {
         int index = toShow[i];
         writeSegmentDigit(ledDigitBytes[index]);
@@ -120,7 +145,7 @@ void showTime() {
 
     flagDisplayUpdate = false;
     
-    if (time[0] == 0 && time[1] == 0 && flagCountDown)
+    if (timeCountDown[0] == 0 && timeCountDown[1] == 0 && flagCountDown)
         flagCountDown = false;    
 }
 
@@ -139,17 +164,41 @@ void listenRadio() {
 
     if (menu == 1)
     {
-        time[0] = messageStr.substring(4, 6).toInt();
-        time[1] = messageStr.substring(6, 8).toInt();
+        String timeStr = messageStr.substring(2, 7);
 
-        Serial.println("time: " + String(time[0]) + ":" + String(time[1]));
+        for (int i = 0; i < sizeof(timeCountDown); i++)
+        {
+            timeCountDown[i] = timeStr[i] - '0';
+            initCountDown[i] = timeStr[i] - '0';
+        }
 
-        flagDisplayUpdate = true;
+        Serial.println("time: " + String(timeCountDown[0]) + ":" + String(timeCountDown[1]));
+    } else if (menu == 2)
+    {
+        String timeStr = messageStr.substring(2, 7);
+
+        for (int i = 0; i < sizeof(timeClock); i++)
+        {
+            timeClock[i] = timeStr[i] - '0';
+        }
+
+        Serial.println("count down time: " + String(timeCountDown[0]) + ":" + String(timeCountDown[1]));
     } else if (menu == 3)
     {
         flagCountDown = messageStr.substring(7, 8).toInt();
         Serial.println("count down: " + String(flagCountDown));
+    } else if (menu == 4)
+    {
+        for (int i = 0; i < sizeof(timeCountDown); i++)
+        {
+            timeCountDown[i] = initCountDown[i];
+        }
+        
+        flagCountDown = false;
+        Serial.println("count down reset");
     }
+
+    flagDisplayUpdate = true;
 }
 
 void loop()
