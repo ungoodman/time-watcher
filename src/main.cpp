@@ -47,7 +47,7 @@ uint32_t radioListenTime;
 int initCountDown[5] = {0, 0, 0, 0, 0};
 int timeCountDown[5] = {0, 0, 0, 0, 0};
 int timeClock[4] = {0, 0, 0, 0};
-bool flagCountDown = true;
+bool flagCountDown = false;
 bool flagDisplayUpdate;
 
 void writeSegmentDigit(byte value)
@@ -145,7 +145,10 @@ void showTime() {
 
     flagDisplayUpdate = false;
     
-    if (timeCountDown[0] == 0 && timeCountDown[1] == 0 && flagCountDown)
+    if (timeCountDown[0] == 0 && timeCountDown[1] == 0 
+    && timeCountDown[2] == 0 && timeCountDown[3] == 0 
+    && timeCountDown[4] == 0 && timeCountDown[5] == 0 
+    && flagCountDown)
         flagCountDown = false;    
 }
 
