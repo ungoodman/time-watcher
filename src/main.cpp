@@ -7,6 +7,7 @@
 #include <SPI.h>
 #include <RF24.h>
 
+#define MAX_DIGITS_INPUT 5
 #define COLUMS 20             // LCD columns
 #define ROWS 4                // LCD rows
 #define LCD_SPACE_SYMBOL 0x20 // space symbol from LCD ROM, see p.9 of GDM2004D datasheet
@@ -73,7 +74,7 @@ void checkNumberValue(char buttonValue)
     if (buttonValue < '0' || buttonValue > '9' || menu < 1 || menu > 2 || flagCommit)
         return;
 
-    if (inputTime.length() >= 6)
+    if (inputTime.length() >= MAX_DIGITS_INPUT)
     {
         inputTime = "";
     }
@@ -90,14 +91,14 @@ void checkConfirm(char buttonValue)
     {
         flagMenuChange = true;
 
-        if ((flagCommit && inputTime.length() >= 6) || menu == 4)
+        if ((flagCommit && inputTime.length() >= MAX_DIGITS_INPUT) || menu == 4)
         {
             flagSendCmd = true;
             flagCommit = false;
             return;
         }
 
-        if (inputTime.length() >= 6)
+        if (inputTime.length() >= MAX_DIGITS_INPUT)
             flagCommit = true;
     }
 
@@ -252,9 +253,9 @@ void sendRadio()
     if (menu == 1 || menu == 2)
         dataToSend += inputTime;
     else if (menu == 3)
-        dataToSend += "00000" + String(pass);
+        dataToSend += "0000" + String(pass);
     else
-        dataToSend += "000000";
+        dataToSend += "00000";
 
     char byteToSend[stringLength];
     dataToSend.toCharArray(byteToSend, stringLength);
