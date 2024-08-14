@@ -325,12 +325,9 @@ void loop()
         // countdownTask();
         // clockTask();
 
-        for (int j = 0; j < 10; j++)
+        for (int i = 0; i < TOTAL_DIGITS_LENGTH; i++)
         {
-            for (int i = 0; i < TOTAL_DIGITS_LENGTH; i++)
-            {
-                writeSegmentDigit(ledDigitBytes[j]);
-            }
+            writeSegmentDigit(ledDigitBytes[i]);
         }
 
         lastTime = millis();
