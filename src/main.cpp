@@ -3,7 +3,7 @@
 #include <RF24.h>
 #pragma GCC optimize("O3") // code optimisation controls - "O2" & "O3" code performance, "Os" code size
 
-#define TOTAL_DIGITS_LENGTH 9
+#define TOTAL_DIGITS_LENGTH 7
 #define SERIAL_BAUD_RATE 115200
 
 #define LATCH_PIN 4
