@@ -323,6 +323,7 @@ void loop()
     {
         showTime();
         countdownTask();
+        clockTask();
 
         lastTime = millis();
     }
