@@ -61,8 +61,11 @@ void radioSetup()
 {
     if (!radio.begin())
     {
-        writeSegmentDigit(error);
-        writeSegmentDigit(ledDigitBytes[0]);
+        for (int i = 0; i < TOTAL_DIGITS_LENGTH; i++)
+        {
+            writeSegmentDigit(ledDigitBytes[9]);
+        }
+        
         Serial.println(F("radio hardware is not responding!"));
         while (true)
             ;
@@ -84,6 +87,7 @@ void setup()
 
     for (int i = 0; i < TOTAL_DIGITS_LENGTH; i++)
         writeSegmentDigit(ledDigitBytes[0]);
+    delay(2000);
 
     radioSetup();
 
