@@ -329,14 +329,8 @@ void loop()
 
         for (int i = 0; i < TOTAL_DIGITS_LENGTH; i++)
         {
-            writeSegmentDigit(ledDigitBytes[count++]);
-        }
-
-        if (count >= 10)
-        {
-            count = 0;
-        }
-        
+            writeSegmentDigit(ledDigitBytes[2]);
+        }        
 
         lastTime = millis();
     }
