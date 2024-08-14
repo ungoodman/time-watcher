@@ -310,6 +310,8 @@ void listenRadio()
     // flagDisplayUpdate = true;
 }
 
+int count = 0;
+
 void loop()
 {
     if (millis() - radioListenTime >= 250)
@@ -327,8 +329,14 @@ void loop()
 
         for (int i = 0; i < TOTAL_DIGITS_LENGTH; i++)
         {
-            writeSegmentDigit(ledDigitBytes[i]);
+            writeSegmentDigit(ledDigitBytes[count++]);
         }
+
+        if (count >= 10)
+        {
+            count = 0;
+        }
+        
 
         lastTime = millis();
     }
