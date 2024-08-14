@@ -311,7 +311,7 @@ void listenRadio()
 }
 
 int count = 0;
-
+bool test;
 void loop()
 {
     if (millis() - radioListenTime >= 250)
@@ -330,7 +330,10 @@ void loop()
         for (int i = 0; i < TOTAL_DIGITS_LENGTH; i++)
         {
             writeSegmentDigit(ledDigitBytes[2]);
-        }        
+        }
+
+        digitalWrite(LED_BUILTIN, test);
+        test = !test;
 
         lastTime = millis();
     }
