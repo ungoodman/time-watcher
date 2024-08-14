@@ -171,8 +171,9 @@ void showTime()
         timeCountDown[4],
         timeClock[0],
         timeClock[1],
-        timeClock[2],
-        timeClock[3]};
+        // timeClock[2],
+        // timeClock[3]
+        };
 
     for (int i = 0; i < TOTAL_DIGITS_LENGTH; i++)
     {
