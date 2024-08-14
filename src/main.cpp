@@ -47,7 +47,7 @@ uint32_t radioListenTime;
 int initCountDown[5] = {0, 0, 0, 0, 0};
 int timeCountDown[5] = {0, 0, 0, 0, 0};
 int timeClock[4] = {0, 0, 0, 0};
-bool flagCountDown = false;
+bool flagCountDown;
 bool flagDisplayUpdate;
 
 void writeSegmentDigit(byte value)
@@ -57,18 +57,20 @@ void writeSegmentDigit(byte value)
     digitalWrite(LATCH_PIN, HIGH);
 }
 
-void radioSetup() {
+void radioSetup()
+{
     if (!radio.begin())
     {
         writeSegmentDigit(error);
         writeSegmentDigit(ledDigitBytes[0]);
         Serial.println(F("radio hardware is not responding!"));
-        while (true);
+        while (true)
+            ;
     }
 
     radio.openReadingPipe(1, PIPE_ADDRESS);
     radio.startListening();
-    
+
     Serial.println(F("radio setup: done"));
 }
 
@@ -82,17 +84,18 @@ void setup()
 
     for (int i = 0; i < TOTAL_DIGITS_LENGTH; i++)
         writeSegmentDigit(ledDigitBytes[0]);
-    
+
     radioSetup();
 
     Serial.println("program setup: done");
     Serial.println("program start");
 }
 
-void timeTask() {
+void countdownTask()
+{
     if (!flagCountDown)
         return;
-    
+
     timeCountDown[4]--;
 
     if (timeCountDown[4] < 0)
@@ -112,31 +115,61 @@ void timeTask() {
         timeCountDown[1] = 9;
         timeCountDown[0]--;
     }
-    
+
     if (timeCountDown[0] < 0)
     {
         timeCountDown[0] = 0;
     }
 
     flagDisplayUpdate = true;
+
+    if (timeCountDown[0] == 0 && timeCountDown[1] == 0 && timeCountDown[2] == 0 && timeCountDown[3] == 0 && timeCountDown[4] == 0)
+        flagCountDown = false;
 }
 
-void showTime() {
+void clockTask()
+{
+    timeClock[3]++;
+
+    if (timeClock[3] > 9)
+    {
+        timeCountDown[3] = 0;
+        timeCountDown[2]++;
+    }
+
+    if (timeCountDown[2] > 5)
+    {
+        timeCountDown[2] = 0;
+        timeCountDown[1]++;
+    }
+
+    if (timeCountDown[0] == 2 && timeCountDown[1] == 4)
+    {
+        timeCountDown[3] = 0;
+        timeCountDown[2] = 0;
+        timeCountDown[1] = 0;
+        timeCountDown[0] = 0;
+    }
+
+    flagDisplayUpdate = true;
+}
+
+void showTime()
+{
     if (!flagDisplayUpdate)
         return;
 
     int toShow[TOTAL_DIGITS_LENGTH] = {
-        timeCountDown[0], 
-        timeCountDown[1], 
-        timeCountDown[2], 
+        timeCountDown[0],
+        timeCountDown[1],
+        timeCountDown[2],
         timeCountDown[3],
         timeCountDown[4],
-        timeClock[0], 
-        timeClock[1], 
+        timeClock[0],
+        timeClock[1],
         timeClock[2],
-        timeClock[3]
-    };
-    
+        timeClock[3]};
+
     for (int i = 0; i < TOTAL_DIGITS_LENGTH; i++)
     {
         int index = toShow[i];
@@ -144,64 +177,137 @@ void showTime() {
     }
 
     flagDisplayUpdate = false;
-    
-    if (timeCountDown[0] == 0 && timeCountDown[1] == 0 
-    && timeCountDown[2] == 0 && timeCountDown[3] == 0 
-    && timeCountDown[4] == 0 && timeCountDown[5] == 0 
-    && flagCountDown)
-        flagCountDown = false;    
 }
 
-void listenRadio() {
-    if (!radio.available())
-        return;
-    
-    char message[10];
+String readRadio(int length)
+{
+    Serial.println("Reading Radio");
+
+    char message[length];
     while (radio.available())
-        radio.read(&message, 10);
+        radio.read(&message, length);
 
     String messageStr = String(message);
-    Serial.println("command: " + messageStr);
+    Serial.println("Radio Command: " + messageStr);
+    return messageStr;
+}
 
-    int menu = messageStr.substring(0, 1).toInt();
+void extractData(String messageStr, int menuOutput, String dataOut)
+{
+    menuOutput = messageStr.substring(0, 1).toInt();
+    dataOut = messageStr.substring(2, 7);
 
-    if (menu == 1)
+    Serial.println("menu: " + String(menuOutput) + " data: " + dataOut);
+}
+
+void selectMenu(int menu, String dataStr)
+{
+    switch (menu)
     {
-        String timeStr = messageStr.substring(2, 7);
-
+    case 1: // Countdown Menu
+    {
+        String timeStr;
         for (int i = 0; i < sizeof(timeCountDown); i++)
         {
-            timeCountDown[i] = timeStr[i] - '0';
-            initCountDown[i] = timeStr[i] - '0';
+            timeCountDown[i] = dataStr[i] - '0';
+            initCountDown[i] = dataStr[i] - '0';
+
+            timeStr += timeCountDown[i];
         }
 
-        Serial.println("time: " + String(timeCountDown[0]) + ":" + String(timeCountDown[1]));
-    } else if (menu == 2)
+        Serial.println("Countdown Set: " + timeStr);
+        break;
+    }
+    case 2: // Clock Menu
     {
-        String timeStr = messageStr.substring(2, 7);
-
+        String timeStr;
         for (int i = 0; i < sizeof(timeClock); i++)
         {
-            timeClock[i] = timeStr[i] - '0';
+            timeClock[i] = dataStr[i] - '0';
+
+            timeStr += timeClock[i];
         }
 
-        Serial.println("count down time: " + String(timeCountDown[0]) + ":" + String(timeCountDown[1]));
-    } else if (menu == 3)
+        Serial.println("Clock Time Set: " + timeStr);
+        break;
+    }
+    case 3: // Countdown Pause Menu
     {
-        flagCountDown = messageStr.substring(7, 8).toInt();
-        Serial.println("count down: " + String(flagCountDown));
-    } else if (menu == 4)
+        flagCountDown = dataStr.substring(6, 7).toInt();
+
+        Serial.println("Countdown Status: " + flagCountDown ? "Run" : "Pause");
+        break;
+    }
+    case 4: // Countdown Reset Menu
     {
         for (int i = 0; i < sizeof(timeCountDown); i++)
         {
             timeCountDown[i] = initCountDown[i];
         }
-        
+
         flagCountDown = false;
-        Serial.println("count down reset");
+        Serial.println("Countdown Reset!");
+        break;
+    }
+    default:
+        break;
     }
 
     flagDisplayUpdate = true;
+}
+
+void listenRadio()
+{
+    if (!radio.available())
+        return;
+
+    String messageStr = readRadio(10);
+
+    int menu;
+    String dataStr;
+
+    extractData(messageStr, menu, dataStr);
+    selectMenu(menu, dataStr);
+    // if (menu == 1)
+    // {
+    //     String timeStr = messageStr.substring(2, 7);
+
+    //     for (int i = 0; i < sizeof(timeCountDown); i++)
+    //     {
+    //         timeCountDown[i] = timeStr[i] - '0';
+    //         initCountDown[i] = timeStr[i] - '0';
+    //     }
+
+    //     Serial.println("time: " + String(timeCountDown[0]) + ":" + String(timeCountDown[1]));
+    // }
+    // else if (menu == 2)
+    // {
+    //     String timeStr = messageStr.substring(2, 7);
+
+    //     for (int i = 0; i < sizeof(timeClock); i++)
+    //     {
+    //         timeClock[i] = timeStr[i] - '0';
+    //     }
+
+    //     Serial.println("count down time: " + String(timeCountDown[0]) + ":" + String(timeCountDown[1]));
+    // }
+    // else if (menu == 3)
+    // {
+    //     flagCountDown = messageStr.substring(7, 8).toInt();
+    //     Serial.println("count down: " + String(flagCountDown));
+    // }
+    // else if (menu == 4)
+    // {
+    //     for (int i = 0; i < sizeof(timeCountDown); i++)
+    //     {
+    //         timeCountDown[i] = initCountDown[i];
+    //     }
+
+    //     flagCountDown = false;
+    //     Serial.println("count down reset");
+    // }
+
+    // flagDisplayUpdate = true;
 }
 
 void loop()
@@ -212,13 +318,12 @@ void loop()
 
         radioListenTime = millis();
     }
-    
 
     if (millis() - lastTime >= 1000)
     {
         showTime();
-        timeTask();
-        
+        countdownTask();
+
         lastTime = millis();
     }
 }
