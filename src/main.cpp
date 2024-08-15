@@ -214,8 +214,9 @@ String readRadio(int length)
 
 void extractData(String messageStr, int menuOutput, String dataOut)
 {
+    // 1#00400
     menuOutput = messageStr.substring(0, 1).toInt();
-    dataOut = messageStr.substring(2, 7);
+    dataOut = messageStr.substring(2);
 
     Serial.println("menu: " + String(menuOutput) + " data: " + dataOut);
 }
@@ -253,7 +254,7 @@ void selectMenu(int menu, String dataStr)
     }
     case 3: // Countdown Pause Menu
     {
-        flagCountDown = dataStr.substring(6, 7).toInt();
+        flagCountDown = dataStr.substring(dataStr.length() - 1).toInt();
 
         Serial.println("Countdown Status: " + flagCountDown ? "Run" : "Pause");
         break;
