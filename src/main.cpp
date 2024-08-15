@@ -339,7 +339,7 @@ void loop()
         radioListenTime = millis();
     }
 
-    if (millis() - lastTime >= 1000)
+    if (millis() - lastTime >= 2000)
     {
         // showTime();
         // countdownTask();
@@ -350,10 +350,10 @@ void loop()
             writeCountdownSegment(ledDigitBytes[2]);
         }
 
-        // for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
-        // {
-        //     writeClockSegment(ledDigitBytes[3]);
-        // }
+        for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
+        {
+            writeClockSegment(ledDigitBytes[3]);
+        }
 
         lastTime = millis();
     }
