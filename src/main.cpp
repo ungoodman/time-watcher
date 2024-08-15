@@ -340,7 +340,7 @@ void loop()
         radioListenTime = millis();
     }
 
-    if (millis() - lastTime >= 2000)
+    if (millis() - lastTime >= 1000)
     {
         // showTime();
         // countdownTask();
