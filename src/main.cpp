@@ -334,41 +334,17 @@ void loop()
 {
     if (millis() - radioListenTime >= 250)
     {
-        // listenRadio();
+        listenRadio();
 
         radioListenTime = millis();
     }
 
     if (millis() - lastTime >= 1000)
     {
-        // showTime();
-        // countdownTask();
+        showTime();
+        countdownTask();
         // clockTask();
-
-        for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
-        {
-            writeCountdownSegment(ledDigitBytes[2]);
-        }
-
-        for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
-        {
-            writeClockSegment(ledDigitBytes[7]);
-        }
 
         lastTime = millis();
     }
-
-    // if (millis() - lastTime2 >= 1000)
-    // {
-    //     // showTime();
-    //     // countdownTask();
-    //     // clockTask();
-
-    //     for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
-    //     {
-    //         writeClockSegment(ledDigitBytes[7]);
-    //     }
-
-    //     lastTime2 = millis();
-    // }
 }
