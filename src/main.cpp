@@ -53,14 +53,14 @@ int timeClock[4] = {0, 0, 0, 0};
 bool flagCountDown;
 bool flagDisplayUpdate;
 
-void writeCountdownSegment(int dataPin, byte value)
+void writeCountdownSegment(byte value)
 {
     digitalWrite(COUNTDOWN_LATCH_PIN, LOW);
     shiftOut(COUNTDOWN_DATA_PIN, CLOCK_PIN, LSBFIRST, value);
     digitalWrite(COUNTDOWN_LATCH_PIN, HIGH);
 }
 
-void writeClockSegment(int dataPin, byte value)
+void writeClockSegment(byte value)
 {
     digitalWrite(CLOCK_LATCH_PIN, LOW);
     shiftOut(CLOCK_DATA_PIN, CLOCK_PIN, LSBFIRST, value);
@@ -73,12 +73,12 @@ void radioSetup()
     {
         for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
         {
-            writeCountdownSegment(COUNTDOWN_DATA_PIN, ledDigitBytes[9]);
+            writeCountdownSegment(ledDigitBytes[9]);
         }
 
-        for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
+        for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
         {
-            writeClockSegment(COUNTDOWN_DATA_PIN, ledDigitBytes[9]);
+            writeClockSegment(ledDigitBytes[9]);
         }
         
         Serial.println(F("radio hardware is not responding!"));
@@ -102,10 +102,10 @@ void setup()
     Serial.begin(SERIAL_BAUD_RATE);
 
     for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
-        writeCountdownSegment(COUNTDOWN_DATA_PIN, ledDigitBytes[0]);
+        writeCountdownSegment(ledDigitBytes[0]);
 
     for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
-            writeClockSegment(CLOCK_DATA_PIN, ledDigitBytes[0]);
+            writeClockSegment(ledDigitBytes[0]);
     delay(2000);
 
     radioSetup();
@@ -185,13 +185,13 @@ void showTime()
     for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
     {
         int index = timeCountDown[i];
-        writeCountdownSegment(COUNTDOWN_DATA_PIN, ledDigitBytes[index]);
+        writeCountdownSegment(ledDigitBytes[index]);
     }
 
     for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
     {
         int index = timeClock[i];
-        writeClockSegment(CLOCK_DATA_PIN, ledDigitBytes[index]);
+        writeClockSegment(ledDigitBytes[index]);
     }
 
     flagDisplayUpdate = false;
@@ -347,13 +347,13 @@ void loop()
 
         for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
         {
-            writeCountdownSegment(COUNTDOWN_DATA_PIN, ledDigitBytes[2]);
+            writeCountdownSegment(ledDigitBytes[2]);
         }
 
-        for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
-        {
-            writeClockSegment(CLOCK_DATA_PIN, ledDigitBytes[3]);
-        }
+        // for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
+        // {
+        //     writeClockSegment(ledDigitBytes[3]);
+        // }
 
         lastTime = millis();
     }
