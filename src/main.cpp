@@ -282,53 +282,13 @@ void listenRadio()
     if (!radio.available())
         return;
 
-    String messageStr = readRadio(10);
+    String messageStr = readRadio(7);
 
     int menu;
     String dataStr;
 
     extractData(messageStr, menu, dataStr);
     selectMenu(menu, dataStr);
-    // if (menu == 1)
-    // {
-    //     String timeStr = messageStr.substring(2, 7);
-
-    //     for (int i = 0; i < sizeof(timeCountDown); i++)
-    //     {
-    //         timeCountDown[i] = timeStr[i] - '0';
-    //         initCountDown[i] = timeStr[i] - '0';
-    //     }
-
-    //     Serial.println("time: " + String(timeCountDown[0]) + ":" + String(timeCountDown[1]));
-    // }
-    // else if (menu == 2)
-    // {
-    //     String timeStr = messageStr.substring(2, 7);
-
-    //     for (int i = 0; i < sizeof(timeClock); i++)
-    //     {
-    //         timeClock[i] = timeStr[i] - '0';
-    //     }
-
-    //     Serial.println("count down time: " + String(timeCountDown[0]) + ":" + String(timeCountDown[1]));
-    // }
-    // else if (menu == 3)
-    // {
-    //     flagCountDown = messageStr.substring(7, 8).toInt();
-    //     Serial.println("count down: " + String(flagCountDown));
-    // }
-    // else if (menu == 4)
-    // {
-    //     for (int i = 0; i < sizeof(timeCountDown); i++)
-    //     {
-    //         timeCountDown[i] = initCountDown[i];
-    //     }
-
-    //     flagCountDown = false;
-    //     Serial.println("count down reset");
-    // }
-
-    // flagDisplayUpdate = true;
 }
 
 void loop()
