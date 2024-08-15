@@ -46,6 +46,7 @@ byte error = B10011110;
 RF24 radio(CE_PIN, CSN_PIN);
 
 uint32_t lastTime;
+uint32_t lastTime2;
 uint32_t radioListenTime;
 int initCountDown[5] = {0, 0, 0, 0, 0};
 int timeCountDown[5] = {0, 0, 0, 0, 0};
@@ -329,8 +330,6 @@ void listenRadio()
     // flagDisplayUpdate = true;
 }
 
-int count = 0;
-bool test;
 void loop()
 {
     if (millis() - radioListenTime >= 250)
@@ -340,7 +339,7 @@ void loop()
         radioListenTime = millis();
     }
 
-    if (millis() - lastTime >= 5000)
+    if (millis() - lastTime >= 1000)
     {
         // showTime();
         // countdownTask();
@@ -351,11 +350,20 @@ void loop()
             writeCountdownSegment(ledDigitBytes[2]);
         }
 
+        lastTime = millis();
+    }
+
+    if (millis() - lastTime2 >= 1000)
+    {
+        // showTime();
+        // countdownTask();
+        // clockTask();
+
         for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
         {
             writeClockSegment(ledDigitBytes[7]);
         }
 
-        lastTime = millis();
+        lastTime2 = millis();
     }
 }
