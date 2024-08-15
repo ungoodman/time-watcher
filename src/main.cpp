@@ -3,11 +3,13 @@
 #include <RF24.h>
 #pragma GCC optimize("O3") // code optimisation controls - "O2" & "O3" code performance, "Os" code size
 
-#define TOTAL_DIGITS_LENGTH 5
+#define COUNTDOWN_DIGITS_LENGTH 5
+#define CLOCK_DIGIT_LENGTH 4
 #define SERIAL_BAUD_RATE 115200
 
 #define LATCH_PIN 4
-#define DATA_PIN 5
+#define COUNTDOWN_DATA_PIN 5
+#define CLOCK_DATA_PIN 6
 #define CLOCK_PIN 3
 
 #define PIPE_ADDRESS 0xE8E8F0F0E1LL
@@ -50,10 +52,10 @@ int timeClock[4] = {0, 0, 0, 0};
 bool flagCountDown;
 bool flagDisplayUpdate;
 
-void writeSegmentDigit(byte value)
+void writeSegmentDigit(int dataPin, byte value)
 {
     digitalWrite(LATCH_PIN, LOW);
-    shiftOut(DATA_PIN, CLOCK_PIN, LSBFIRST, value);
+    shiftOut(dataPin, CLOCK_PIN, LSBFIRST, value);
     digitalWrite(LATCH_PIN, HIGH);
 }
 
@@ -61,9 +63,14 @@ void radioSetup()
 {
     if (!radio.begin())
     {
-        for (int i = 0; i < TOTAL_DIGITS_LENGTH; i++)
+        for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
         {
-            writeSegmentDigit(ledDigitBytes[9]);
+            writeSegmentDigit(COUNTDOWN_DATA_PIN, ledDigitBytes[9]);
+        }
+
+        for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
+        {
+            writeSegmentDigit(COUNTDOWN_DATA_PIN, ledDigitBytes[9]);
         }
         
         Serial.println(F("radio hardware is not responding!"));
@@ -79,14 +86,18 @@ void radioSetup()
 
 void setup()
 {
-    pinMode(DATA_PIN, OUTPUT);
+    pinMode(CLOCK_DATA_PIN, OUTPUT);
+    pinMode(COUNTDOWN_DATA_PIN, OUTPUT);
     pinMode(LATCH_PIN, OUTPUT);
     pinMode(CLOCK_PIN, OUTPUT);
 
     Serial.begin(SERIAL_BAUD_RATE);
 
-    for (int i = 0; i < TOTAL_DIGITS_LENGTH; i++)
-        writeSegmentDigit(ledDigitBytes[0]);
+    for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
+        writeSegmentDigit(COUNTDOWN_DATA_PIN, ledDigitBytes[0]);
+
+    for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
+            writeSegmentDigit(CLOCK_DATA_PIN, ledDigitBytes[0]);
     delay(2000);
 
     radioSetup();
@@ -163,22 +174,16 @@ void showTime()
     if (!flagDisplayUpdate)
         return;
 
-    int toShow[TOTAL_DIGITS_LENGTH] = {
-        timeCountDown[0],
-        timeCountDown[1],
-        timeCountDown[2],
-        timeCountDown[3],
-        timeCountDown[4],
-        // timeClock[0],
-        // timeClock[1],
-        // timeClock[2],
-        // timeClock[3]
-        };
-
-    for (int i = 0; i < TOTAL_DIGITS_LENGTH; i++)
+    for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
     {
-        int index = toShow[i];
-        writeSegmentDigit(ledDigitBytes[index]);
+        int index = timeCountDown[i];
+        writeSegmentDigit(COUNTDOWN_DATA_PIN, ledDigitBytes[index]);
+    }
+
+    for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
+    {
+        int index = timeClock[i];
+        writeSegmentDigit(CLOCK_DATA_PIN, ledDigitBytes[index]);
     }
 
     flagDisplayUpdate = false;
@@ -332,13 +337,15 @@ void loop()
         // countdownTask();
         // clockTask();
 
-        for (int i = 0; i < TOTAL_DIGITS_LENGTH; i++)
+        for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
         {
-            writeSegmentDigit(ledDigitBytes[2]);
+            writeSegmentDigit(COUNTDOWN_DATA_PIN, ledDigitBytes[2]);
         }
 
-        digitalWrite(LED_BUILTIN, test);
-        test = !test;
+        for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
+        {
+            writeSegmentDigit(COUNTDOWN_DATA_PIN, ledDigitBytes[3]);
+        }
 
         lastTime = millis();
     }
