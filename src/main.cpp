@@ -342,9 +342,9 @@ void loop()
             writeSegmentDigit(COUNTDOWN_DATA_PIN, ledDigitBytes[2]);
         }
 
-        for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
+        for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
         {
-            writeSegmentDigit(COUNTDOWN_DATA_PIN, ledDigitBytes[3]);
+            writeSegmentDigit(CLOCK_DATA_PIN, ledDigitBytes[3]);
         }
 
         lastTime = millis();
