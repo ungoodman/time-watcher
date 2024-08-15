@@ -350,20 +350,25 @@ void loop()
             writeCountdownSegment(ledDigitBytes[2]);
         }
 
-        lastTime = millis();
-    }
-
-    if (millis() - lastTime2 >= 1000)
-    {
-        // showTime();
-        // countdownTask();
-        // clockTask();
-
         for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
         {
             writeClockSegment(ledDigitBytes[7]);
         }
 
-        lastTime2 = millis();
+        lastTime = millis();
     }
+
+    // if (millis() - lastTime2 >= 1000)
+    // {
+    //     // showTime();
+    //     // countdownTask();
+    //     // clockTask();
+
+    //     for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
+    //     {
+    //         writeClockSegment(ledDigitBytes[7]);
+    //     }
+
+    //     lastTime2 = millis();
+    // }
 }
