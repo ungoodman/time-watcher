@@ -95,6 +95,7 @@ void radioSetup()
 void setup()
 {
     pinMode(CLOCK_DATA_PIN, OUTPUT);
+    pinMode(CLOCK_LATCH_PIN, OUTPUT);
     pinMode(COUNTDOWN_DATA_PIN, OUTPUT);
     pinMode(COUNTDOWN_LATCH_PIN, OUTPUT);
     pinMode(CLOCK_PIN, OUTPUT);
