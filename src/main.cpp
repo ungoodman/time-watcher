@@ -4,18 +4,18 @@
 #pragma GCC optimize("O3") // code optimisation controls - "O2" & "O3" code performance, "Os" code size
 
 #define COUNTDOWN_DIGITS_LENGTH 5
-#define CLOCK_DIGIT_LENGTH 2
+#define CLOCK_DIGIT_LENGTH 4
 #define SERIAL_BAUD_RATE 115200
 
-#define COUNTDOWN_LATCH_PIN 4
-#define COUNTDOWN_DATA_PIN 5
-#define CLOCK_LATCH_PIN 9
-#define CLOCK_DATA_PIN 6
-#define CLOCK_PIN 3
+#define COUNTDOWN_LATCH_PIN 34
+#define COUNTDOWN_DATA_PIN 35
+#define CLOCK_LATCH_PIN 39
+#define CLOCK_DATA_PIN 36
+#define CLOCK_PIN 17
 
 #define PIPE_ADDRESS 0xE8E8F0F0E1LL
-#define CE_PIN 5
-#define CSN_PIN 8
+#define CE_PIN 32
+#define CSN_PIN 33
 
 #define DIGIT_ZERO B11111100
 #define DIGIT_ONE B01100000
