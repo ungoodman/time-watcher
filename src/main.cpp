@@ -14,8 +14,8 @@
 #define CLOCK_PIN 17
 
 #define PIPE_ADDRESS 0xE8E8F0F0E1LL
-#define CE_PIN 32
-#define CSN_PIN 33
+#define CE_PIN 4
+#define CSN_PIN 5
 
 #define DIGIT_ZERO B11111100
 #define DIGIT_ONE B01100000
