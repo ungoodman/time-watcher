@@ -301,6 +301,8 @@ void listenRadio()
 
     extractData(messageStr, menu, dataStr);
     selectMenu(menu, dataStr);
+
+    flagRadioAvailable = false;
 }
 
 void loop()
@@ -312,11 +314,7 @@ void loop()
     //     radioListenTime = millis();
     // }
 
-    if (flagRadioAvailable) {
-        listenRadio();
-
-        flagRadioAvailable = false;
-    }
+    if (flagRadioAvailable) listenRadio();
 
 
     if (millis() - lastTime >= 1000)
@@ -335,7 +333,6 @@ void loop()
             writeCountdownSegment(ledDigitBytes[timeClock[3]]);
         }
         
-
         lastTime = millis();
     }
 }
