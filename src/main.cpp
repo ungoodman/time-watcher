@@ -14,8 +14,8 @@
 #define CLOCK_PIN 3
 
 #define PIPE_ADDRESS 0xE8E8F0F0E1LL
-#define CE_PIN 8
-#define CSN_PIN 7
+#define CE_PIN 5
+#define CSN_PIN 8
 
 #define DIGIT_ZERO B11111100
 #define DIGIT_ONE B01100000
@@ -107,10 +107,10 @@ void setup()
         writeCountdownSegment(ledDigitBytes[0]);
 
     for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
-            writeClockSegment(ledDigitBytes[0]);
+        writeClockSegment(ledDigitBytes[0]);
     delay(2000);
 
-    radioSetup();
+    // radioSetup();
 
     Serial.println("program setup: done");
     Serial.println("program start");
@@ -295,12 +295,12 @@ void listenRadio()
 
 void loop()
 {
-    if (millis() - radioListenTime >= 250)
-    {
-        listenRadio();
+    // if (millis() - radioListenTime >= 250)
+    // {
+    //     listenRadio();
 
-        radioListenTime = millis();
-    }
+    //     radioListenTime = millis();
+    // }
 
     if (millis() - lastTime >= 1000)
     {
