@@ -7,15 +7,16 @@
 #define CLOCK_DIGIT_LENGTH 4
 #define SERIAL_BAUD_RATE 115200
 
-#define COUNTDOWN_LATCH_PIN 34
-#define COUNTDOWN_DATA_PIN 35
-#define CLOCK_LATCH_PIN 39
-#define CLOCK_DATA_PIN 36
+#define COUNTDOWN_LATCH_PIN 27
+#define COUNTDOWN_DATA_PIN 14
+#define CLOCK_LATCH_PIN 12
+#define CLOCK_DATA_PIN 13
 #define CLOCK_PIN 17
 
 #define PIPE_ADDRESS 0xE8E8F0F0E1LL
 #define CE_PIN 4
 #define CSN_PIN 5
+#define IRQ_PIN 2
 
 #define DIGIT_ZERO B11111100
 #define DIGIT_ONE B01100000
@@ -53,6 +54,7 @@ int timeCountDown[5] = {0, 0, 0, 0, 0};
 int timeClock[4] = {0, 0, 0, 0};
 bool flagCountDown;
 bool flagDisplayUpdate;
+bool flagRadioAvailable;
 
 void writeCountdownSegment(byte value)
 {
@@ -93,6 +95,10 @@ void radioSetup()
     Serial.println(F("radio setup: done"));
 }
 
+void isr_function() {
+    flagRadioAvailable = true;
+}
+
 void setup()
 {
     pinMode(CLOCK_DATA_PIN, OUTPUT);
@@ -100,8 +106,12 @@ void setup()
     pinMode(COUNTDOWN_DATA_PIN, OUTPUT);
     pinMode(COUNTDOWN_LATCH_PIN, OUTPUT);
     pinMode(CLOCK_PIN, OUTPUT);
+    pinMode(IRQ_PIN, INPUT);
+
+    attachInterrupt(digitalPinToInterrupt(IRQ_PIN), isr_function, FALLING);
 
     Serial.begin(SERIAL_BAUD_RATE);
+    Serial.println();
 
     for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
         writeCountdownSegment(ledDigitBytes[0]);
@@ -295,18 +305,36 @@ void listenRadio()
 
 void loop()
 {
-    if (millis() - radioListenTime >= 250)
-    {
+    // if (millis() - radioListenTime >= 250)
+    // {
+    //     // listenRadio();
+
+    //     radioListenTime = millis();
+    // }
+
+    if (flagRadioAvailable) {
         listenRadio();
 
-        radioListenTime = millis();
+        flagRadioAvailable = false;
     }
+
 
     if (millis() - lastTime >= 1000)
     {
-        showTime();
-        countdownTask();
+        // showTime();
+        // countdownTask();
         // clockTask();
+
+        for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
+        {
+            writeClockSegment(ledDigitBytes[timeClock[7]]);
+        }
+
+        for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
+        {
+            writeCountdownSegment(ledDigitBytes[timeClock[3]]);
+        }
+        
 
         lastTime = millis();
     }
