@@ -103,12 +103,12 @@ void setup()
 
     Serial.begin(SERIAL_BAUD_RATE);
 
-    for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
-        writeCountdownSegment(ledDigitBytes[0]);
+    // for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
+    //     writeCountdownSegment(ledDigitBytes[0]);
 
-    for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
-        writeClockSegment(ledDigitBytes[0]);
-    delay(2000);
+    // for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
+    //     writeClockSegment(ledDigitBytes[0]);
+    // delay(2000);
 
     // radioSetup();
 
@@ -302,12 +302,12 @@ void loop()
     //     radioListenTime = millis();
     // }
 
-    if (millis() - lastTime >= 1000)
-    {
-        showTime();
-        countdownTask();
-        // clockTask();
+    // if (millis() - lastTime >= 1000)
+    // {
+    //     showTime();
+    //     countdownTask();
+    //     // clockTask();
 
-        lastTime = millis();
-    }
+    //     lastTime = millis();
+    // }
 }
