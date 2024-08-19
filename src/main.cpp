@@ -16,7 +16,7 @@
 #define PIPE_ADDRESS 0xE8E8F0F0E1LL
 #define CE_PIN 4
 #define CSN_PIN 5
-#define IRQ_PIN 2
+#define IRQ_PIN 26
 
 #define DIGIT_ZERO B11111100
 #define DIGIT_ONE B01100000
@@ -114,10 +114,10 @@ void setup()
     Serial.println();
 
     for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
-        writeCountdownSegment(ledDigitBytes[0]);
+        writeCountdownSegment(ledDigitBytes[2]);
 
     for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
-        writeClockSegment(ledDigitBytes[0]);
+        writeClockSegment(ledDigitBytes[5]);
     delay(2000);
 
     radioSetup();
@@ -226,7 +226,7 @@ void extractData(String messageStr, int menuOutput, String dataOut)
 {
     // 1#00400
     menuOutput = messageStr.substring(0, 1).toInt();
-    dataOut = messageStr.substring(2);
+    dataOut = messageStr.substring(2, 7);
 
     Serial.println("menu: " + String(menuOutput) + " data: " + dataOut);
 }
@@ -291,8 +291,8 @@ void selectMenu(int menu, String dataStr)
 
 void listenRadio()
 {
-    if (!radio.available())
-        return;
+    // if (!radio.available())
+    //     return;
 
     String messageStr = readRadio(7);
 
@@ -307,13 +307,6 @@ void listenRadio()
 
 void loop()
 {
-    // if (millis() - radioListenTime >= 250)
-    // {
-    //     // listenRadio();
-
-    //     radioListenTime = millis();
-    // }
-
     if (flagRadioAvailable) listenRadio();
 
 
@@ -323,15 +316,15 @@ void loop()
         // countdownTask();
         // clockTask();
 
-        for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
-        {
-            writeClockSegment(ledDigitBytes[timeClock[7]]);
-        }
+        // for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
+        // {
+        //     writeClockSegment(ledDigitBytes[timeClock[7]]);
+        // }
 
-        for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
-        {
-            writeCountdownSegment(ledDigitBytes[timeClock[3]]);
-        }
+        // for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
+        // {
+        //     writeCountdownSegment(ledDigitBytes[timeClock[3]]);
+        // }
         
         lastTime = millis();
     }
