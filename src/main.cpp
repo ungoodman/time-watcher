@@ -313,9 +313,9 @@ void loop()
 
     if (millis() - lastTime >= 1000)
     {
-        // showTime();
-        // countdownTask();
-        // clockTask();
+        showTime();
+        countdownTask();
+        clockTask();
 
         // for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
         // {
