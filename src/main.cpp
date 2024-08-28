@@ -313,19 +313,19 @@ void loop()
 
     if (millis() - lastTime >= 1000)
     {
-        showTime();
-        countdownTask();
-        clockTask();
+        // showTime();
+        // countdownTask();
+        // clockTask();
 
-        // for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
-        // {
-        //     writeClockSegment(ledDigitBytes[timeClock[7]]);
-        // }
+        for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
+        {
+            writeClockSegment(ledDigitBytes[timeClock[7]]);
+        }
 
-        // for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
-        // {
-        //     writeCountdownSegment(ledDigitBytes[timeClock[3]]);
-        // }
+        for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
+        {
+            writeCountdownSegment(ledDigitBytes[timeClock[3]]);
+        }
         
         lastTime = millis();
     }
