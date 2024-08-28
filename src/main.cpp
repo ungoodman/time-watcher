@@ -3,7 +3,7 @@
 #include <RF24.h>
 #pragma GCC optimize("O3") // code optimisation controls - "O2" & "O3" code performance, "Os" code size
 
-#define COUNTDOWN_DIGITS_LENGTH 3
+#define COUNTDOWN_DIGITS_LENGTH 1
 #define CLOCK_DIGIT_LENGTH 4
 #define SERIAL_BAUD_RATE 115200
 
@@ -101,14 +101,14 @@ void isr_function() {
 
 void setup()
 {
-    pinMode(CLOCK_DATA_PIN, OUTPUT);
-    pinMode(CLOCK_LATCH_PIN, OUTPUT);
+    // pinMode(CLOCK_DATA_PIN, OUTPUT);
+    // pinMode(CLOCK_LATCH_PIN, OUTPUT);
     pinMode(COUNTDOWN_DATA_PIN, OUTPUT);
     pinMode(COUNTDOWN_LATCH_PIN, OUTPUT);
     pinMode(CLOCK_PIN, OUTPUT);
-    pinMode(IRQ_PIN, INPUT);
+    // pinMode(IRQ_PIN, INPUT);
 
-    attachInterrupt(digitalPinToInterrupt(IRQ_PIN), isr_function, FALLING);
+    // attachInterrupt(digitalPinToInterrupt(IRQ_PIN), isr_function, FALLING);
 
     Serial.begin(SERIAL_BAUD_RATE);
     Serial.println();
