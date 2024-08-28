@@ -116,8 +116,11 @@ void setup()
     // for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
     //     writeClockSegment(ledDigitBytes[5]);
 
-    for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
-        writeCountdownSegment(ledDigitBytes[4]);
+    // for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
+    writeCountdownSegment(ledDigitBytes[4]);
+    writeCountdownSegment(ledDigitBytes[4]);
+    writeCountdownSegment(ledDigitBytes[4]);
+    // writeCountdownSegment(ledDigitBytes[4]);
 
     delay(5000);
 
@@ -322,13 +325,12 @@ void loop()
         //     writeClockSegment(ledDigitBytes[timeClock[7]]);
         // }
 
-        for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
-        {
-            writeCountdownSegment(ledDigitBytes[timeClock[6]]);
-        }
+        // for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
+        // {
+        //     writeCountdownSegment(ledDigitBytes[timeClock[6]]);
+        // }
 
         
         lastTime = millis();
-        Serial.println("TS: " + String(lastTime));
     }
 }
