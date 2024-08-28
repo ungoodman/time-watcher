@@ -117,9 +117,9 @@ void setup()
         writeClockSegment(ledDigitBytes[5]);
 
     for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
-        writeCountdownSegment(ledDigitBytes[2]);
+        writeCountdownSegment(ledDigitBytes[0]);
 
-    delay(2000);
+    delay(5000);
 
     radioSetup();
 
