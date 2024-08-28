@@ -4,7 +4,7 @@
 #pragma GCC optimize("O3") // code optimisation controls - "O2" & "O3" code performance, "Os" code size
 
 #define COUNTDOWN_DIGITS_LENGTH 5
-#define CLOCK_DIGIT_LENGTH 2
+#define CLOCK_DIGIT_LENGTH 4
 #define SERIAL_BAUD_RATE 115200
 
 #define COUNTDOWN_LATCH_PIN 27
