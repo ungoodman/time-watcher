@@ -117,9 +117,9 @@ void setup()
     //     writeClockSegment(ledDigitBytes[5]);
 
     // for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
-    writeCountdownSegment(ledDigitBytes[7]);
-    writeCountdownSegment(ledDigitBytes[7]);
-    writeCountdownSegment(ledDigitBytes[7]);
+    writeCountdownSegment(ledDigitBytes[3]);
+    writeCountdownSegment(ledDigitBytes[3]);
+    writeCountdownSegment(ledDigitBytes[3]);
     // writeCountdownSegment(ledDigitBytes[4]);
 
     delay(5000);
