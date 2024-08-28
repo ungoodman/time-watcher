@@ -3,7 +3,7 @@
 #include <RF24.h>
 #pragma GCC optimize("O3") // code optimisation controls - "O2" & "O3" code performance, "Os" code size
 
-#define COUNTDOWN_DIGITS_LENGTH 5
+#define COUNTDOWN_DIGITS_LENGTH 3
 #define CLOCK_DIGIT_LENGTH 4
 #define SERIAL_BAUD_RATE 115200
 
@@ -113,11 +113,11 @@ void setup()
     Serial.begin(SERIAL_BAUD_RATE);
     Serial.println();
 
-    for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
-        writeClockSegment(ledDigitBytes[5]);
+    // for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
+    //     writeClockSegment(ledDigitBytes[5]);
 
     for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
-        writeCountdownSegment(ledDigitBytes[0]);
+        writeCountdownSegment(ledDigitBytes[4]);
 
     delay(5000);
 
@@ -317,16 +317,18 @@ void loop()
         // countdownTask();
         // clockTask();
 
-        for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
-        {
-            writeClockSegment(ledDigitBytes[timeClock[7]]);
-        }
+        // for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
+        // {
+        //     writeClockSegment(ledDigitBytes[timeClock[7]]);
+        // }
 
         for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
         {
-            writeCountdownSegment(ledDigitBytes[timeClock[3]]);
+            writeCountdownSegment(ledDigitBytes[timeClock[6]]);
         }
+
         
         lastTime = millis();
+        Serial.println("TS: " + String(lastTime));
     }
 }
