@@ -7,11 +7,11 @@
 #define CLOCK_DIGIT_LENGTH 4
 #define SERIAL_BAUD_RATE 115200
 
-#define COUNTDOWN_LATCH_PIN 27
-#define COUNTDOWN_DATA_PIN 14
-#define CLOCK_LATCH_PIN 12
-#define CLOCK_DATA_PIN 13
-#define CLOCK_PIN 22
+#define COUNTDOWN_LATCH_PIN 32
+#define COUNTDOWN_DATA_PIN 25
+#define CLOCK_LATCH_PIN 26
+#define CLOCK_DATA_PIN 27
+#define CLOCK_PIN 33
 
 #define PIPE_ADDRESS 0xE8E8F0F0E1LL
 #define CE_PIN 4
@@ -22,7 +22,7 @@
 #define DIGIT_ONE B01100000
 #define DIGIT_TWO B11011010
 #define DIGIT_THREE B11110010
-#define DIGIT_FOUR B01100110
+#define DIGIT_FOUR B11111111
 #define DIGIT_FIVE B10110110
 #define DIGIT_SIX B10111110
 #define DIGIT_SEVEN B11100000
@@ -116,15 +116,12 @@ void setup()
     // for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
     //     writeClockSegment(ledDigitBytes[5]);
 
-    // for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
-    writeCountdownSegment(ledDigitBytes[3]);
-    writeCountdownSegment(ledDigitBytes[3]);
-    writeCountdownSegment(ledDigitBytes[3]);
-    // writeCountdownSegment(ledDigitBytes[4]);
+    for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
+        writeCountdownSegment(ledDigitBytes[5]);
 
     delay(5000);
 
-    radioSetup();
+    // radioSetup();
 
     Serial.println("program setup: done");
     Serial.println("program start");
@@ -311,11 +308,11 @@ void listenRadio()
 
 void loop()
 {
-    if (flagRadioAvailable) listenRadio();
+    // if (flagRadioAvailable) listenRadio();
 
 
-    if (millis() - lastTime >= 1000)
-    {
+    // if (millis() - lastTime >= 1000)
+    // {
         // showTime();
         // countdownTask();
         // clockTask();
@@ -331,6 +328,6 @@ void loop()
         // }
 
         
-        lastTime = millis();
-    }
+    //     lastTime = millis();
+    // }
 }
