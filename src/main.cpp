@@ -160,7 +160,7 @@ void countdownTask()
         flagCountDown = false;
 
     Serial.print("Countdown: ");
-    for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
+    for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
     {
         int index = timeCountDown[i];
         writeCountdownSegment(ledDigitBytes[index]);
@@ -192,7 +192,7 @@ void clockTask()
     }
 
     Serial.print("Clock: ");
-    for (int i = CLOCK_DIGIT_LENGTH; i >= 0; i--)
+    for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
     {
         int index = timeClock[i];
         writeClockSegment(ledDigitBytes[index]);
