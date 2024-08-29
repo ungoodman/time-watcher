@@ -16,7 +16,7 @@
 #define PIPE_ADDRESS 0xE8E8F0F0E1LL
 #define CE_PIN 4
 #define CSN_PIN 5
-#define IRQ_PIN 35
+#define IRQ_PIN 13
 
 #define DIGIT_ZERO B11111100
 #define DIGIT_ONE B01100000
@@ -122,7 +122,6 @@ void setup()
         writeCountdownSegment(ledDigitBytes[i]);
 
     Serial.println("run LED test: done");
-
 
     delay(2000);
 
