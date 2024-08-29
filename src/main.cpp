@@ -157,10 +157,14 @@ void countdownTask()
         timeCountDown[0] = 0;
     }
 
-    flagDisplayUpdate = true;
-
     if (timeCountDown[0] == 0 && timeCountDown[1] == 0 && timeCountDown[2] == 0 && timeCountDown[3] == 0 && timeCountDown[4] == 0)
         flagCountDown = false;
+
+    for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
+    {
+        int index = timeCountDown[i];
+        writeCountdownSegment(ledDigitBytes[index]);
+    }
 }
 
 void clockTask()
@@ -187,27 +191,11 @@ void clockTask()
         timeCountDown[0] = 0;
     }
 
-    flagDisplayUpdate = true;
-}
-
-void showTime()
-{
-    if (!flagDisplayUpdate)
-        return;
-
-    for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
-    {
-        int index = timeCountDown[i];
-        writeCountdownSegment(ledDigitBytes[index]);
-    }
-
     for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
     {
         int index = timeClock[i];
         writeClockSegment(ledDigitBytes[index]);
     }
-
-    flagDisplayUpdate = false;
 }
 
 String readRadio(int length)
@@ -313,7 +301,6 @@ void loop()
 
     if (millis() - lastTime >= 1000)
     {
-        showTime();
         countdownTask();
         clockTask();
 
