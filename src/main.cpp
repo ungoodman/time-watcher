@@ -175,26 +175,26 @@ void clockTask()
 
     if (timeClock[3] > 9)
     {
-        timeCountDown[3] = 0;
-        timeCountDown[2]++;
+        timeClock[3] = 0;
+        timeClock[2]++;
     }
 
-    if (timeCountDown[2] > 5)
+    if (timeClock[2] > 5)
     {
-        timeCountDown[2] = 0;
-        timeCountDown[1]++;
+        timeClock[2] = 0;
+        timeClock[1]++;
     }
 
-    if (timeCountDown[0] == 2 && timeCountDown[1] == 4)
+    if (timeClock[0] == 2 && timeClock[1] == 4)
     {
-        timeCountDown[3] = 0;
-        timeCountDown[2] = 0;
-        timeCountDown[1] = 0;
-        timeCountDown[0] = 0;
+        timeClock[3] = 0;
+        timeClock[2] = 0;
+        timeClock[1] = 0;
+        timeClock[0] = 0;
     }
 
     Serial.print("Clock: ");
-    for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
+    for (int i = CLOCK_DIGIT_LENGTH; i > 0; i++)
     {
         int index = timeClock[i];
         writeClockSegment(ledDigitBytes[index]);
