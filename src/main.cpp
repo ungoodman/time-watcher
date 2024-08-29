@@ -159,45 +159,9 @@ void countdownTask()
     if (timeCountDown[0] == 0 && timeCountDown[1] == 0 && timeCountDown[2] == 0 && timeCountDown[3] == 0 && timeCountDown[4] == 0)
         flagCountDown = false;
 
-    for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
-    {
-        int index = timeCountDown[i];
-        writeCountdownSegment(ledDigitBytes[index]);
-    }
-
     Serial.println("Countdown: " + String(timeCountDown[0]) + " " + String(timeCountDown[1]) + " " + String(timeCountDown[2]) + " " + String(timeCountDown[3]) + " " + String(timeCountDown[4]) + " ");
 
     timeCountDown[4]--;
-}
-
-void updateTime()
-{
-    timeClock[3]++;
-    if (timeClock[3] == 10)
-    {
-        timeClock[3] = 0;
-        timeClock[2]++;
-    }
-
-    if (timeClock[2] == 6)
-    {
-        timeClock[2] = 0;
-        timeClock[1]++;
-    }
-    
-    if (timeClock[1] == 10)
-    {
-        timeClock[1] = 0;
-        timeClock[0]++;
-    }
-
-    if (timeClock[0] == 2 && timeClock[1] == 4)
-    {
-        timeClock[0] = 0;
-        timeClock[1] = 0;
-        timeClock[2] = 0;
-        timeClock[3] = 0;
-    }
 }
 
 void clockTask()
@@ -233,7 +197,7 @@ void clockTask()
         timeClock[2] = 0;
         timeClock[1]++;
     }
-    
+
     if (timeClock[1] == 10)
     {
         timeClock[1] = 0;
@@ -248,15 +212,27 @@ void clockTask()
         timeClock[3] = 0;
     }
 
+    Serial.println("Clock: " + String(timeClock[0]) + String(timeClock[1]) + String(timeClock[2]) + String(timeClock[3]));
+
+    timeClock[3]++;
+}
+
+void updateDisplay()
+{
     for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
     {
         int index = timeClock[i];
         writeClockSegment(ledDigitBytes[index]);
     }
 
-    Serial.println("Clock: " + String(timeClock[0]) + String(timeClock[1]) + String(timeClock[2]) + String(timeClock[3]));
+    if (!flagCountDown)
+        return;
 
-    timeClock[3]++;
+    for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
+    {
+        int index = timeCountDown[i];
+        writeCountdownSegment(ledDigitBytes[index]);
+    }
 }
 
 String readRadio(int length)
@@ -361,6 +337,8 @@ void loop()
     {
         clockTask();
         countdownTask();
+
+        updateDisplay();
 
         lastTime = millis();
     }
