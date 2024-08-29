@@ -114,12 +114,12 @@ void setup()
     Serial.println();
 
     for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
-        writeClockSegment(ledDigitBytes[7]);
+        writeClockSegment(ledDigitBytes[i]);
 
     for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
-        writeCountdownSegment(ledDigitBytes[5]);
+        writeCountdownSegment(ledDigitBytes[i]);
 
-    delay(5000);
+    delay(2000);
 
     radioSetup();
 
@@ -308,26 +308,15 @@ void listenRadio()
 
 void loop()
 {
-    // if (flagRadioAvailable) listenRadio();
+    if (flagRadioAvailable) listenRadio();
 
 
-    // if (millis() - lastTime >= 1000)
-    // {
-        // showTime();
-        // countdownTask();
-        // clockTask();
+    if (millis() - lastTime >= 1000)
+    {
+        showTime();
+        countdownTask();
+        clockTask();
 
-        // for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
-        // {
-        //     writeClockSegment(ledDigitBytes[timeClock[7]]);
-        // }
-
-        // for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
-        // {
-        //     writeCountdownSegment(ledDigitBytes[timeClock[6]]);
-        // }
-
-        
-    //     lastTime = millis();
-    // }
+        lastTime = millis();
+    }
 }
