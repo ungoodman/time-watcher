@@ -164,7 +164,7 @@ void countdownTask()
     {
         int index = timeCountDown[i];
         writeCountdownSegment(ledDigitBytes[index]);
-        Serial.print(ledDigitBytes[index]);
+        Serial.print(index);
     }
     Serial.println();
 }
@@ -198,7 +198,7 @@ void clockTask()
     {
         int index = timeClock[i];
         writeClockSegment(ledDigitBytes[index]);
-        Serial.print(ledDigitBytes[index]);
+        Serial.print(index);
     }
     Serial.println();
 }
