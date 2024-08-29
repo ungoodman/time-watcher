@@ -104,7 +104,6 @@ void setup()
     Serial.begin(SERIAL_BAUD_RATE);
     Serial.println();
 
-
     pinMode(CLOCK_DATA_PIN, OUTPUT);
     pinMode(CLOCK_LATCH_PIN, OUTPUT);
     pinMode(COUNTDOWN_DATA_PIN, OUTPUT);
@@ -112,7 +111,6 @@ void setup()
     pinMode(CLOCK_PIN, OUTPUT);
     pinMode(IRQ_PIN, INPUT);
 
-    radioSetup();
     attachInterrupt(digitalPinToInterrupt(IRQ_PIN), isr_function, FALLING);
 
     Serial.println("program setup: done");
@@ -124,6 +122,9 @@ void setup()
         writeCountdownSegment(ledDigitBytes[i]);
 
     Serial.println("run LED test: done");
+
+    radioSetup();
+
     delay(2000);
 
 
