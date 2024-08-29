@@ -160,11 +160,14 @@ void countdownTask()
     if (timeCountDown[0] == 0 && timeCountDown[1] == 0 && timeCountDown[2] == 0 && timeCountDown[3] == 0 && timeCountDown[4] == 0)
         flagCountDown = false;
 
+    Serial.print("Countdown: ");
     for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
     {
         int index = timeCountDown[i];
         writeCountdownSegment(ledDigitBytes[index]);
+        Serial.print(ledDigitBytes[index]);
     }
+    Serial.println();
 }
 
 void clockTask()
@@ -191,11 +194,14 @@ void clockTask()
         timeCountDown[0] = 0;
     }
 
+    Serial.print("Clock: ");
     for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
     {
         int index = timeClock[i];
         writeClockSegment(ledDigitBytes[index]);
+        Serial.print(ledDigitBytes[index]);
     }
+    Serial.println();
 }
 
 String readRadio(int length)
@@ -301,8 +307,8 @@ void loop()
 
     if (millis() - lastTime >= 1000)
     {
-        countdownTask();
         clockTask();
+        countdownTask();
 
         lastTime = millis();
     }
