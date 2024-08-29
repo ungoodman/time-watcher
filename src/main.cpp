@@ -16,7 +16,7 @@
 #define PIPE_ADDRESS 0xE8E8F0F0E1LL
 #define CE_PIN 4
 #define CSN_PIN 5
-#define IRQ_PIN 26
+#define IRQ_PIN 14
 
 #define DIGIT_ZERO B11111100
 #define DIGIT_ONE B01100000
@@ -101,6 +101,10 @@ void isr_function() {
 
 void setup()
 {
+    Serial.begin(SERIAL_BAUD_RATE);
+    Serial.println();
+
+
     pinMode(CLOCK_DATA_PIN, OUTPUT);
     pinMode(CLOCK_LATCH_PIN, OUTPUT);
     pinMode(COUNTDOWN_DATA_PIN, OUTPUT);
@@ -108,10 +112,10 @@ void setup()
     pinMode(CLOCK_PIN, OUTPUT);
     pinMode(IRQ_PIN, INPUT);
 
+    radioSetup();
     attachInterrupt(digitalPinToInterrupt(IRQ_PIN), isr_function, FALLING);
 
-    Serial.begin(SERIAL_BAUD_RATE);
-    Serial.println();
+    Serial.println("program setup: done");
 
     for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
         writeClockSegment(ledDigitBytes[i]);
@@ -119,11 +123,10 @@ void setup()
     for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
         writeCountdownSegment(ledDigitBytes[i]);
 
+    Serial.println("run LED test: done");
     delay(2000);
 
-    radioSetup();
 
-    Serial.println("program setup: done");
     Serial.println("program start");
 }
 
@@ -286,9 +289,6 @@ void selectMenu(int menu, String dataStr)
 
 void listenRadio()
 {
-    // if (!radio.available())
-    //     return;
-
     String messageStr = readRadio(7);
 
     int menu;
