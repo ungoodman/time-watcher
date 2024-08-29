@@ -85,8 +85,7 @@ void radioSetup()
         }
         
         Serial.println(F("radio hardware is not responding!"));
-        while (true)
-            ;
+        while (true);
     }
 
     radio.openReadingPipe(1, PIPE_ADDRESS);
@@ -101,9 +100,6 @@ void isr_function() {
 
 void setup()
 {
-    Serial.begin(SERIAL_BAUD_RATE);
-    Serial.println();
-
     pinMode(CLOCK_DATA_PIN, OUTPUT);
     pinMode(CLOCK_LATCH_PIN, OUTPUT);
     pinMode(COUNTDOWN_DATA_PIN, OUTPUT);
@@ -113,7 +109,8 @@ void setup()
 
     attachInterrupt(digitalPinToInterrupt(IRQ_PIN), isr_function, FALLING);
 
-    Serial.println("program setup: done");
+    Serial.begin(SERIAL_BAUD_RATE);
+    Serial.println();
 
     for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
         writeClockSegment(ledDigitBytes[i]);
@@ -121,12 +118,11 @@ void setup()
     for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
         writeCountdownSegment(ledDigitBytes[i]);
 
-    Serial.println("run LED test: done");
-
     delay(2000);
 
     radioSetup();
 
+    Serial.println("program setup: done");
     Serial.println("program start");
 }
 
