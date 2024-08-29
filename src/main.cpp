@@ -123,10 +123,10 @@ void setup()
 
     Serial.println("run LED test: done");
 
-    radioSetup();
 
     delay(2000);
 
+    radioSetup();
 
     Serial.println("program start");
 }
