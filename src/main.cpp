@@ -328,6 +328,8 @@ void listenRadio()
     flagRadioAvailable = false;
 }
 
+int counter = 0;
+
 void loop()
 {
     if (flagRadioAvailable)
@@ -335,11 +337,20 @@ void loop()
 
     if (millis() - lastTime >= 1000)
     {
-        clockTask();
-        countdownTask();
+        // clockTask();
+        // countdownTask();
 
-        updateDisplay();
+        // updateDisplay();
 
+        for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
+        {
+            writeClockSegment(ledDigitBytes[counter]);
+        }
+
+        counter++;
+        if (counter == 10)
+            counter = 0;
+        
         lastTime = millis();
     }
 }
