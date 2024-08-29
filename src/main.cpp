@@ -16,7 +16,7 @@
 #define PIPE_ADDRESS 0xE8E8F0F0E1LL
 #define CE_PIN 4
 #define CSN_PIN 5
-#define IRQ_PIN 14
+#define IRQ_PIN 35
 
 #define DIGIT_ZERO B11111100
 #define DIGIT_ONE B01100000
