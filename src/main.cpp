@@ -112,10 +112,10 @@ void setup()
     Serial.begin(SERIAL_BAUD_RATE);
     Serial.println();
 
-    for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
+    for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
         writeClockSegment(ledDigitBytes[i]);
 
-    for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
+    for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
         writeCountdownSegment(ledDigitBytes[i]);
 
     delay(2000);
@@ -171,8 +171,6 @@ void countdownTask()
 
 void clockTask()
 {
-    timeClock[3]++;
-
     if (timeClock[3] > 9)
     {
         timeClock[3] = 0;
@@ -194,13 +192,15 @@ void clockTask()
     }
 
     Serial.print("Clock: ");
-    for (int i = CLOCK_DIGIT_LENGTH; i > 0; i++)
+    for (int i = CLOCK_DIGIT_LENGTH; i >= 0; i--)
     {
         int index = timeClock[i];
         writeClockSegment(ledDigitBytes[index]);
         Serial.print(index);
     }
     Serial.println();
+
+    timeClock[3]++;
 }
 
 String readRadio(int length)
