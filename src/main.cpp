@@ -22,7 +22,7 @@
 #define DIGIT_ONE B01100000
 #define DIGIT_TWO B11011010
 #define DIGIT_THREE B11110010
-#define DIGIT_FOUR B11111111
+#define DIGIT_FOUR B01100110
 #define DIGIT_FIVE B10110110
 #define DIGIT_SIX B10111110
 #define DIGIT_SEVEN B11100000
@@ -194,7 +194,7 @@ void clockTask()
     }
 
     Serial.print("Clock: ");
-    for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
+    for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
     {
         int index = timeClock[i];
         writeClockSegment(ledDigitBytes[index]);
