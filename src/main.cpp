@@ -83,9 +83,10 @@ void radioSetup()
         {
             writeClockSegment(ledDigitBytes[9]);
         }
-        
+
         Serial.println(F("radio hardware is not responding!"));
-        while (true);
+        while (true)
+            ;
     }
 
     radio.openReadingPipe(1, PIPE_ADDRESS);
@@ -94,7 +95,8 @@ void radioSetup()
     Serial.println(F("radio setup: done"));
 }
 
-void isr_function() {
+void isr_function()
+{
     flagRadioAvailable = true;
 }
 
@@ -131,8 +133,6 @@ void countdownTask()
     if (!flagCountDown)
         return;
 
-    timeCountDown[4]--;
-
     if (timeCountDown[4] < 0)
     {
         timeCountDown[4] = 9;
@@ -159,46 +159,102 @@ void countdownTask()
     if (timeCountDown[0] == 0 && timeCountDown[1] == 0 && timeCountDown[2] == 0 && timeCountDown[3] == 0 && timeCountDown[4] == 0)
         flagCountDown = false;
 
-    Serial.print("Countdown: ");
     for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
     {
         int index = timeCountDown[i];
         writeCountdownSegment(ledDigitBytes[index]);
-        Serial.print(index);
     }
-    Serial.println();
+
+    Serial.println("Countdown: " + String(timeCountDown[0]) + " " + String(timeCountDown[1]) + " " + String(timeCountDown[2]) + " " + String(timeCountDown[3]) + " " + String(timeCountDown[4]) + " ");
+
+    timeCountDown[4]--;
 }
 
-void clockTask()
+void updateTime()
 {
-    if (timeClock[3] > 9)
+    timeClock[3]++;
+    if (timeClock[3] == 10)
     {
         timeClock[3] = 0;
         timeClock[2]++;
     }
 
-    if (timeClock[2] > 5)
+    if (timeClock[2] == 6)
     {
         timeClock[2] = 0;
         timeClock[1]++;
     }
+    
+    if (timeClock[1] == 10)
+    {
+        timeClock[1] = 0;
+        timeClock[0]++;
+    }
 
     if (timeClock[0] == 2 && timeClock[1] == 4)
     {
-        timeClock[3] = 0;
-        timeClock[2] = 0;
-        timeClock[1] = 0;
         timeClock[0] = 0;
+        timeClock[1] = 0;
+        timeClock[2] = 0;
+        timeClock[3] = 0;
+    }
+}
+
+void clockTask()
+{
+    // if (timeClock[3] > 9)
+    // {
+    //     timeClock[3] = 0;
+    //     timeClock[2]++;
+    // }
+
+    // if (timeClock[2] > 5)
+    // {
+    //     timeClock[2] = 0;
+    //     timeClock[1]++;
+    // }
+
+    // if (timeClock[0] == 2 && timeClock[1] == 4)
+    // {
+    //     timeClock[3] = 0;
+    //     timeClock[2] = 0;
+    //     timeClock[1] = 0;
+    //     timeClock[0] = 0;
+    // }
+
+    if (timeClock[3] == 10)
+    {
+        timeClock[3] = 0;
+        timeClock[2]++;
     }
 
-    Serial.print("Clock: ");
+    if (timeClock[2] == 6)
+    {
+        timeClock[2] = 0;
+        timeClock[1]++;
+    }
+    
+    if (timeClock[1] == 10)
+    {
+        timeClock[1] = 0;
+        timeClock[0]++;
+    }
+
+    if (timeClock[0] == 2 && timeClock[1] == 4)
+    {
+        timeClock[0] = 0;
+        timeClock[1] = 0;
+        timeClock[2] = 0;
+        timeClock[3] = 0;
+    }
+
     for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
     {
         int index = timeClock[i];
         writeClockSegment(ledDigitBytes[index]);
-        Serial.print(index);
     }
-    Serial.println();
+
+    Serial.println("Clock: " + String(timeClock[0]) + String(timeClock[1]) + String(timeClock[2]) + String(timeClock[3]));
 
     timeClock[3]++;
 }
@@ -298,8 +354,8 @@ void listenRadio()
 
 void loop()
 {
-    if (flagRadioAvailable) listenRadio();
-
+    if (flagRadioAvailable)
+        listenRadio();
 
     if (millis() - lastTime >= 1000)
     {
