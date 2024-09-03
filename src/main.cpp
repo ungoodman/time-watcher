@@ -42,8 +42,6 @@ byte ledDigitBytes[] = {
     DIGIT_EIGHT,
     DIGIT_NINE};
 
-// byte error = B10011110;
-
 RF24 radio(CE_PIN, CSN_PIN);
 
 uint32_t lastTime;
@@ -114,14 +112,13 @@ void setup()
     Serial.begin(SERIAL_BAUD_RATE);
     Serial.println();
 
-    // digitalWrite(CLOCK_PIN, LOW);
     for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--){
         writeClockSegment(ledDigitBytes[3]);
     }
-    // digitalWrite(CLOCK_PIN, HIGH);
 
-    // for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
-    //     writeCountdownSegment(ledDigitBytes[7]);
+    for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
+        writeCountdownSegment(ledDigitBytes[i]);
+
     delay(2000);
 
     radioSetup();
@@ -330,34 +327,18 @@ void listenRadio()
     flagRadioAvailable = false;
 }
 
-int counter = 0;
-
 void loop()
 {
-    // if (flagRadioAvailable)
-    //     listenRadio();
+    if (flagRadioAvailable)
+        listenRadio();
 
-    // if (millis() - lastTime >= 1000)
-    // {
+    if (millis() - lastTime >= 1000)
+    {
         // clockTask();
-        // countdownTask();
+        countdownTask();
 
-        // updateDisplay();
-
-        // for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
-        // {
-        //     writeClockSegment(ledDigitBytes[counter]);
-        // }
-
-        // for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
-        // {
-        //     writeCountdownSegment(ledDigitBytes[counter]);
-        // }
-
-        // counter++;
-        // if (counter == 10)
-        //     counter = 0;
+        updateDisplay();
         
-    //     lastTime = millis();
-    // }
+        lastTime = millis();
+    }
 }
