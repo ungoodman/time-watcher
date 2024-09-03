@@ -123,6 +123,9 @@ void setup()
 
     radioSetup();
 
+    for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
+        writeCountdownSegment(ledDigitBytes[0]);
+        
     Serial.println("program setup: done");
     Serial.println("program start");
 }
