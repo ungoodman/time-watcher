@@ -115,8 +115,10 @@ void setup()
     Serial.println();
 
     digitalWrite(CLOCK_PIN, LOW);
-    for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
+    for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--){
         writeClockSegment(ledDigitBytes[3]);
+        delay(100);
+    }
     digitalWrite(CLOCK_PIN, HIGH);
 
     // for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
