@@ -346,10 +346,15 @@ void loop()
 
         // updateDisplay();
 
-        for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
+        for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
         {
-            writeCountdownSegment(ledDigitBytes[counter]);
+            writeClockSegment(ledDigitBytes[counter]);
         }
+
+        // for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
+        // {
+        //     writeCountdownSegment(ledDigitBytes[counter]);
+        // }
 
         counter++;
         if (counter == 10)
