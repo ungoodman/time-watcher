@@ -7,14 +7,10 @@
 #define CLOCK_DIGIT_LENGTH 4
 #define SERIAL_BAUD_RATE 115200
 
-// #define COUNTDOWN_LATCH_PIN 32
-// #define COUNTDOWN_DATA_PIN 25
-// #define CLOCK_LATCH_PIN 26
-// #define CLOCK_DATA_PIN 27
-#define COUNTDOWN_LATCH_PIN 26
-#define COUNTDOWN_DATA_PIN 27
-#define CLOCK_LATCH_PIN 32
-#define CLOCK_DATA_PIN 25
+#define COUNTDOWN_LATCH_PIN 32
+#define COUNTDOWN_DATA_PIN 25
+#define CLOCK_LATCH_PIN 26
+#define CLOCK_DATA_PIN 27
 #define CLOCK_PIN 33
 
 #define PIPE_ADDRESS 0xE8E8F0F0E1LL
@@ -119,10 +115,10 @@ void setup()
     Serial.println();
 
     for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
-        writeClockSegment(ledDigitBytes[i]);
+        writeClockSegment(ledDigitBytes[3]);
 
     for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
-        writeCountdownSegment(ledDigitBytes[i]);
+        writeCountdownSegment(ledDigitBytes[7]);
 
     delay(2000);
 
@@ -336,30 +332,30 @@ int counter = 0;
 
 void loop()
 {
-    if (flagRadioAvailable)
-        listenRadio();
+    // if (flagRadioAvailable)
+    //     listenRadio();
 
-    if (millis() - lastTime >= 2000)
-    {
+    // if (millis() - lastTime >= 1000)
+    // {
         // clockTask();
         // countdownTask();
 
         // updateDisplay();
 
-        for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
-        {
-            writeClockSegment(ledDigitBytes[counter]);
-        }
+        // for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
+        // {
+        //     writeClockSegment(ledDigitBytes[counter]);
+        // }
 
         // for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
         // {
         //     writeCountdownSegment(ledDigitBytes[counter]);
         // }
 
-        counter++;
-        if (counter == 10)
-            counter = 0;
+        // counter++;
+        // if (counter == 10)
+        //     counter = 0;
         
-        lastTime = millis();
-    }
+    //     lastTime = millis();
+    // }
 }
