@@ -339,7 +339,7 @@ void loop()
     if (flagRadioAvailable)
         listenRadio();
 
-    if (millis() - lastTime >= 1000)
+    if (millis() - lastTime >= 2000)
     {
         // clockTask();
         // countdownTask();
