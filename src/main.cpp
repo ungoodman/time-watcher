@@ -342,9 +342,9 @@ void loop()
 
         // updateDisplay();
 
-        for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
+        for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
         {
-            writeClockSegment(ledDigitBytes[counter]);
+            writeCountdownSegment(ledDigitBytes[counter]);
         }
 
         counter++;
