@@ -114,12 +114,13 @@ void setup()
     Serial.begin(SERIAL_BAUD_RATE);
     Serial.println();
 
+    digitalWrite(CLOCK_PIN, LOW);
     for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
         writeClockSegment(ledDigitBytes[3]);
+    digitalWrite(CLOCK_PIN, HIGH);
 
     for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
         writeCountdownSegment(ledDigitBytes[7]);
-
     delay(2000);
 
     radioSetup();
