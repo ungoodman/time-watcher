@@ -256,7 +256,7 @@ String readRadio(int length)
     Serial.println();
     
     
-    Serial.println("Radio Command: " + messageStr);
+    // Serial.println("Radio Command: " + messageStr);
     return messageStr;
 }
 
@@ -334,6 +334,10 @@ void selectMenu(int menu, String dataStr)
 void listenRadio()
 {    
     String messageStr = readRadio(10);
+
+    Serial.println("Radio Message: ");
+    Serial.println(messageStr);
+    Serial.println("End");
 
     int menu = extractMenu(messageStr);
     String dataStr = extractData(messageStr);
