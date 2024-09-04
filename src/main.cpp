@@ -47,9 +47,9 @@ RF24 radio(CE_PIN, CSN_PIN);
 uint32_t lastTime;
 uint32_t lastTime2;
 uint32_t radioListenTime;
-int initCountDown[5] = {0, 0, 0, 0, 0};
-int timeCountDown[5] = {0, 0, 0, 0, 0};
-int timeClock[4] = {0, 0, 0, 0};
+int initCountDown[COUNTDOWN_DIGITS_LENGTH] = {0, 0, 0, 0, 0};
+int timeCountDown[COUNTDOWN_DIGITS_LENGTH] = {0, 0, 0, 0, 0};
+int timeClock[CLOCK_DIGIT_LENGTH] = {0, 0, 0, 0};
 bool flagCountDown;
 bool flagDisplayUpdate;
 bool flagRadioAvailable;
@@ -274,7 +274,7 @@ void selectMenu(int menu, String dataStr)
     case 1: // Countdown Menu
     {
         String timeStr;
-        for (int i = 0; i < sizeof(timeCountDown); i++)
+        for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
         {
             timeCountDown[i] = dataStr[i] - '0';
             initCountDown[i] = dataStr[i] - '0';
@@ -290,7 +290,7 @@ void selectMenu(int menu, String dataStr)
     case 2: // Clock Menu
     {
         String timeStr;
-        for (int i = 0; i < sizeof(timeClock); i++)
+        for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
         {
             timeClock[i] = dataStr[i] - '0';
 
@@ -346,31 +346,6 @@ void listenRadio()
 
         selectMenu(menu, dataStr);
     }
-    // String messageStr = readRadio(10);
-    // Serial.println("Reading Radio");
-
-    // char message[10];
-    // while (radio.available())
-    //     radio.read(&message, 10);
-
-    // char cutMsg[7];
-    // for (int i = 0; i < 7; i++)
-    // {
-    //     cutMsg[i] = message[i];
-    // }
-
-    // Serial.println("Radio Message: ");
-    // Serial.println(cutMsg);
-    // Serial.println("End");
-
-    // int menu = extractMenu(cutMsg);
-    // String dataStr = extractData(cutMsg);
-
-    // Serial.println("Menu: " + String(menu) + " Data: " + dataStr);
-
-    // selectMenu(menu, dataStr);
-
-    // flagRadioAvailable = false;
 }
 
 uint32_t radioLastTime = 0;
