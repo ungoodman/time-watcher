@@ -237,22 +237,22 @@ void updateDisplay()
     }
 }
 
-String readRadio(int length)
-{
-    Serial.println("Reading Radio");
+// char[7] readRadio(int length)
+// {
+//     Serial.println("Reading Radio");
 
-    char message[length];
-    while (radio.available())
-        radio.read(&message, length);
+//     char message[length];
+//     while (radio.available())
+//         radio.read(&message, length);
 
-    char cutMsg[7];
-    for (int i = 0; i < 7; i++)
-    {
-        cutMsg[i] = message[i];
-    }
+//     char cutMsg[7];
+//     for (int i = 0; i < 7; i++)
+//     {
+//         cutMsg[i] = message[i];
+//     }
 
-    return String(cutMsg);
-}
+//     return cutMsg;
+// }
 
 int extractMenu(String messageStr)
 {
@@ -327,14 +327,25 @@ void selectMenu(int menu, String dataStr)
 
 void listenRadio()
 {    
-    String messageStr = readRadio(10);
+    // String messageStr = readRadio(10);
+    Serial.println("Reading Radio");
+
+    char message[10];
+    while (radio.available())
+        radio.read(&message, 10);
+
+    char cutMsg[7];
+    for (int i = 0; i < 7; i++)
+    {
+        cutMsg[i] = message[i];
+    }
 
     Serial.println("Radio Message: ");
-    Serial.println(messageStr);
+    Serial.println(cutMsg);
     Serial.println("End");
 
-    int menu = extractMenu(messageStr);
-    String dataStr = extractData(messageStr);
+    int menu = extractMenu(cutMsg);
+    String dataStr = extractData(cutMsg);
 
     Serial.println("Menu: " + String(menu) + " Data: " + dataStr);
 
