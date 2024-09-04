@@ -359,17 +359,8 @@ uint32_t radioLastTime = 0;
 
 void loop()
 {
-    if (radio.available())
-        {
-            char getFromRead[10];
-            while (radio.available())
-                radio.read(getFromRead, 10);
-
-            String cmd = String(getFromRead);
-            // menu = cmd.substring(0, 1).toInt();
-            // inputTime = cmd.substring(2, 11);
-            Serial.println("Radio Receive: " + String(getFromRead));
-        }
+    if (flagRadioAvailable)
+        listenRadio();
 
     if (millis() - lastTime >= 1000)
     {
