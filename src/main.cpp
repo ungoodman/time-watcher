@@ -160,14 +160,7 @@ void countdownTask()
     }
 
     if (timeCountDown[0] == 0 && timeCountDown[1] == 0 && timeCountDown[2] == 0 && timeCountDown[3] == 0 && timeCountDown[4] == 0)
-    {
-        for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i)
-        {
-            timeCountDown[i] = initCountDown[i];
-        }
-        
         flagCountDown = false;
-    }
 
     Serial.println("Countdown: " + String(timeCountDown[0]) + " " + String(timeCountDown[1]) + " " + String(timeCountDown[2]) + " " + String(timeCountDown[3]) + " " + String(timeCountDown[4]) + " ");
 
