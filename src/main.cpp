@@ -16,7 +16,7 @@
 #define PIPE_ADDRESS 0xE8E8F0F0E1LL
 #define CE_PIN 4
 #define CSN_PIN 5
-#define IRQ_PIN 13
+// #define IRQ_PIN 13
 
 #define DIGIT_ZERO B11111100
 #define DIGIT_ONE B01100000
@@ -105,9 +105,9 @@ void setup()
     pinMode(COUNTDOWN_DATA_PIN, OUTPUT);
     pinMode(COUNTDOWN_LATCH_PIN, OUTPUT);
     pinMode(CLOCK_PIN, OUTPUT);
-    pinMode(IRQ_PIN, INPUT);
+    // pinMode(IRQ_PIN, INPUT);
 
-    attachInterrupt(digitalPinToInterrupt(IRQ_PIN), isr_function, FALLING);
+    // attachInterrupt(digitalPinToInterrupt(IRQ_PIN), isr_function, FALLING);
 
     Serial.begin(SERIAL_BAUD_RATE);
     Serial.println();
@@ -335,9 +335,11 @@ void listenRadio()
     flagRadioAvailable = false;
 }
 
+uint32_t radioLastTime = 0;
+
 void loop()
 {
-    if (flagRadioAvailable)
+    if (millis() - radioLastTime >= 300)
         listenRadio();
 
     if (millis() - lastTime >= 1000)
