@@ -323,6 +323,9 @@ void selectMenu(int menu, String dataStr)
 
 void listenRadio()
 {
+    if (!radio.available())
+        return;
+    
     String messageStr = readRadio(7);
 
     int menu = extractMenu(messageStr);
