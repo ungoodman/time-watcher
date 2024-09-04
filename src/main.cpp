@@ -252,6 +252,7 @@ String readRadio(int length)
         messageStr += message[i];
         Serial.print(message[i]);
     }
+    messageStr += '\0';
     Serial.println();
     
     
