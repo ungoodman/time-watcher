@@ -306,7 +306,7 @@ void selectMenu(int menu, String dataStr)
 
 void listenRadio()
 {
-    if (radio.available())
+    if (flagRadioAvailable)
     {
         Serial.println("Reading Radio");
 
@@ -323,6 +323,8 @@ void listenRadio()
         Serial.println("Menu: " + String(menu) + " Data: " + dataStr);
 
         selectMenu(menu, dataStr);
+
+        flagRadioAvailable = false;
     }
 }
 
