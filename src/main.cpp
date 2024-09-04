@@ -279,7 +279,7 @@ void selectMenu(int menu, String dataStr)
             timeCountDown[i] = dataStr[i] - '0';
             initCountDown[i] = dataStr[i] - '0';
 
-            timeStr += timeCountDown[i];
+            timeStr += dataStr[i];
         }
 
         flagCountDown = true;
@@ -294,7 +294,7 @@ void selectMenu(int menu, String dataStr)
         {
             timeClock[i] = dataStr[i] - '0';
 
-            timeStr += timeClock[i];
+            timeStr += dataStr[i];
         }
 
         Serial.println("Clock Time Set: " + timeStr);
@@ -344,7 +344,7 @@ void listenRadio()
 
         Serial.println("Menu: " + String(menu) + " Data: " + dataStr);
 
-        // selectMenu(menu, dataStr);
+        selectMenu(menu, dataStr);
     }
     // String messageStr = readRadio(10);
     // Serial.println("Reading Radio");
