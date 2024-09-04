@@ -164,6 +164,12 @@ void countdownTask()
 
     Serial.println("Countdown: " + String(timeCountDown[0]) + " " + String(timeCountDown[1]) + " " + String(timeCountDown[2]) + " " + String(timeCountDown[3]) + " " + String(timeCountDown[4]) + " ");
 
+    for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
+    {
+        int index = timeCountDown[i];
+        writeCountdownSegment(ledDigitBytes[index]);
+    }
+
     timeCountDown[4]--;
 }
 
@@ -227,33 +233,7 @@ void updateDisplay()
         int index = timeClock[i];
         writeClockSegment(ledDigitBytes[index]);
     }
-
-    if (!flagCountDown)
-        return;
-
-    for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
-    {
-        int index = timeCountDown[i];
-        writeCountdownSegment(ledDigitBytes[index]);
-    }
 }
-
-// char[7] readRadio(int length)
-// {
-//     Serial.println("Reading Radio");
-
-//     char message[length];
-//     while (radio.available())
-//         radio.read(&message, length);
-
-//     char cutMsg[7];
-//     for (int i = 0; i < 7; i++)
-//     {
-//         cutMsg[i] = message[i];
-//     }
-
-//     return cutMsg;
-// }
 
 int extractMenu(String messageStr)
 {
@@ -273,36 +253,30 @@ void selectMenu(int menu, String dataStr)
     {
     case 1: // Countdown Menu
     {
-        String timeStr;
         for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
         {
             timeCountDown[i] = dataStr[i] - '0';
             initCountDown[i] = dataStr[i] - '0';
-
-            timeStr += dataStr[i];
         }
 
         flagCountDown = true;
 
-        Serial.println("Countdown Set: " + timeStr);
+        Serial.println("Countdown Set: " + dataStr);
         break;
     }
     case 2: // Clock Menu
     {
-        String timeStr;
         for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
         {
             timeClock[i] = dataStr[i] - '0';
-
-            timeStr += dataStr[i];
         }
 
-        Serial.println("Clock Time Set: " + timeStr);
+        Serial.println("Clock Time Set: " + dataStr);
         break;
     }
     case 3: // Countdown Pause Menu
     {
-        flagCountDown = dataStr.substring(dataStr.length() - 1).toInt();
+        flagCountDown = !flagCountDown;
 
         Serial.println("Countdown Status: " + flagCountDown ? "Run" : "Pause");
         break;
@@ -359,7 +333,7 @@ void loop()
         // clockTask();
         countdownTask();
 
-        updateDisplay();
+        // updateDisplay();
 
         lastTime = millis();
     }
