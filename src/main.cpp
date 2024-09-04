@@ -245,14 +245,16 @@ String readRadio(int length)
     while (radio.available())
         radio.read(&message, length);
 
+    String messageStr;
     Serial.println("Radio Message: ");
-    for (int i = 0; i < length; i++)
+    for (int i = 0; i < 7; i++)
     {
+        messageStr += message[i];
         Serial.print(message[i]);
     }
     Serial.println();
     
-    String messageStr = String(message);
+    
     Serial.println("Radio Command: " + messageStr);
     return messageStr;
 }
