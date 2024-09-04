@@ -344,7 +344,7 @@ void listenRadio()
 
         Serial.println("Menu: " + String(menu) + " Data: " + dataStr);
 
-        selectMenu(menu, dataStr);
+        // selectMenu(menu, dataStr);
     }
     // String messageStr = readRadio(10);
     // Serial.println("Reading Radio");
