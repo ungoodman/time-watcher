@@ -170,6 +170,18 @@ void countdownTask()
         writeCountdownSegment(ledDigitBytes[index]);
     }
 
+    if (!flagCountDown)
+    {
+        for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
+        {
+            timeCountDown[i] = initCountDown[i];
+            int index = initCountDown[i];
+            writeCountdownSegment(ledDigitBytes[index]);
+        }
+
+        return;
+    }
+
     timeCountDown[4]--;
 }
 
