@@ -131,8 +131,23 @@ void setup()
     Serial.println("program start");
 }
 
+bool flagCountdownReset;
+
 void countdownTask()
 {
+    if (flagCountdownReset)
+    {
+        for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
+        {
+            timeCountDown[i] = initCountDown[i];
+            int index = initCountDown[i];
+            writeCountdownSegment(ledDigitBytes[index]);
+        }
+
+        flagCountdownReset = false;
+        return;
+    }
+
     if (!flagCountDown)
         return;
 
@@ -160,7 +175,10 @@ void countdownTask()
     }
 
     if (timeCountDown[0] == 0 && timeCountDown[1] == 0 && timeCountDown[2] == 0 && timeCountDown[3] == 0 && timeCountDown[4] == 0)
+    {
         flagCountDown = false;
+        flagCountdownReset = true;
+    }
 
     Serial.println("Countdown: " + String(timeCountDown[0]) + " " + String(timeCountDown[1]) + " " + String(timeCountDown[2]) + " " + String(timeCountDown[3]) + " " + String(timeCountDown[4]) + " ");
 
@@ -168,18 +186,6 @@ void countdownTask()
     {
         int index = timeCountDown[i];
         writeCountdownSegment(ledDigitBytes[index]);
-    }
-
-    if (!flagCountDown)
-    {
-        for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
-        {
-            timeCountDown[i] = initCountDown[i];
-            int index = initCountDown[i];
-            writeCountdownSegment(ledDigitBytes[index]);
-        }
-
-        return;
     }
 
     timeCountDown[4]--;
