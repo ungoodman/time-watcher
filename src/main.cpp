@@ -342,8 +342,11 @@ uint32_t radioLastTime = 0;
 
 void loop()
 {
-    if (millis() - radioLastTime >= 300)
+    if (millis() - radioLastTime >= 300){
         listenRadio();
+
+        radioLastTime = millis();
+    }
 
     if (millis() - lastTime >= 1000)
     {
