@@ -328,39 +328,56 @@ void selectMenu(int menu, String dataStr)
 
 void listenRadio()
 {
-    // String messageStr = readRadio(10);
-    Serial.println("Reading Radio");
-
-    char message[10];
-    while (radio.available())
-        radio.read(&message, 10);
-
-    char cutMsg[7];
-    for (int i = 0; i < 7; i++)
+    if (radio.available())
     {
-        cutMsg[i] = message[i];
+        Serial.println("Reading Radio");
+
+        char message[10];
+        while (radio.available())
+            radio.read(message, 10);
+
+        String cmd = String(message);
+        Serial.println("Radio Receive: " + String(message));
+
+        int menu = extractMenu(cmd);
+        String dataStr = extractData(cmd);
+
+        Serial.println("Menu: " + String(menu) + " Data: " + dataStr);
+
+        selectMenu(menu, dataStr);
     }
+    // String messageStr = readRadio(10);
+    // Serial.println("Reading Radio");
 
-    Serial.println("Radio Message: ");
-    Serial.println(cutMsg);
-    Serial.println("End");
+    // char message[10];
+    // while (radio.available())
+    //     radio.read(&message, 10);
 
-    int menu = extractMenu(cutMsg);
-    String dataStr = extractData(cutMsg);
+    // char cutMsg[7];
+    // for (int i = 0; i < 7; i++)
+    // {
+    //     cutMsg[i] = message[i];
+    // }
 
-    Serial.println("Menu: " + String(menu) + " Data: " + dataStr);
+    // Serial.println("Radio Message: ");
+    // Serial.println(cutMsg);
+    // Serial.println("End");
 
-    selectMenu(menu, dataStr);
+    // int menu = extractMenu(cutMsg);
+    // String dataStr = extractData(cutMsg);
 
-    flagRadioAvailable = false;
+    // Serial.println("Menu: " + String(menu) + " Data: " + dataStr);
+
+    // selectMenu(menu, dataStr);
+
+    // flagRadioAvailable = false;
 }
 
 uint32_t radioLastTime = 0;
 
 void loop()
 {
-    if (flagRadioAvailable)
-        listenRadio();
+    listenRadio();
 
     if (millis() - lastTime >= 1000)
     {
