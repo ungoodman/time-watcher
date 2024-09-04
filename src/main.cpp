@@ -259,8 +259,6 @@ void selectMenu(int menu, String dataStr)
             initCountDown[i] = dataStr[i] - '0';
         }
 
-        flagCountDown = true;
-
         Serial.println("Countdown Set: " + dataStr);
         break;
     }
