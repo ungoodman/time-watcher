@@ -245,19 +245,13 @@ String readRadio(int length)
     while (radio.available())
         radio.read(&message, length);
 
-    String messageStr;
-    Serial.println("Radio Message: ");
+    char cutMsg[7];
     for (int i = 0; i < 7; i++)
     {
-        messageStr += message[i];
-        Serial.print(message[i]);
+        cutMsg[i] = message[i];
     }
-    messageStr += '\0';
-    Serial.println();
-    
-    
-    // Serial.println("Radio Command: " + messageStr);
-    return messageStr;
+
+    return String(cutMsg);
 }
 
 int extractMenu(String messageStr)
