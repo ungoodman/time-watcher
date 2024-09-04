@@ -259,6 +259,12 @@ void selectMenu(int menu, String dataStr)
             initCountDown[i] = dataStr[i] - '0';
         }
 
+        for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
+        {
+            int index = timeCountDown[i];
+            writeCountdownSegment(ledDigitBytes[index]);
+        }
+
         Serial.println("Countdown Set: " + dataStr);
         break;
     }
