@@ -245,6 +245,13 @@ String readRadio(int length)
     while (radio.available())
         radio.read(&message, length);
 
+    Serial.println("Radio Message: ");
+    for (int i = 0; i < length; i++)
+    {
+        Serial.print(message[i]);
+    }
+    Serial.println();
+    
     String messageStr = String(message);
     Serial.println("Radio Command: " + messageStr);
     return messageStr;
@@ -326,7 +333,7 @@ void listenRadio()
     if (!radio.available())
         return;
     
-    String messageStr = readRadio(7);
+    String messageStr = readRadio(10);
 
     int menu = extractMenu(messageStr);
     String dataStr = extractData(messageStr);
@@ -342,7 +349,7 @@ uint32_t radioLastTime = 0;
 
 void loop()
 {
-    if (millis() - radioLastTime >= 300){
+    if (flagRadioAvailable){
         listenRadio();
 
         radioLastTime = millis();
