@@ -250,13 +250,16 @@ String readRadio(int length)
     return messageStr;
 }
 
-void extractData(String messageStr, int menuOutput, String dataOut)
+int extractMenu(String messageStr)
 {
     // 1#00400
-    menuOutput = messageStr.substring(0, 1).toInt();
-    dataOut = messageStr.substring(2, 7);
+    return messageStr.substring(0, 1).toInt();
+}
 
-    Serial.println("menu: " + String(menuOutput) + " data: " + dataOut);
+String extractData(String messageStr)
+{
+    // 1#00400
+    return messageStr.substring(2, 7);
 }
 
 void selectMenu(int menu, String dataStr)
@@ -311,6 +314,7 @@ void selectMenu(int menu, String dataStr)
         break;
     }
     default:
+        Serial.println("Invalid Menu!");
         break;
     }
 
@@ -321,10 +325,11 @@ void listenRadio()
 {
     String messageStr = readRadio(7);
 
-    int menu;
-    String dataStr;
+    int menu = extractMenu(messageStr);
+    String dataStr = extractData(messageStr);
 
-    extractData(messageStr, menu, dataStr);
+    Serial.println("Menu: " + String(menu) + " Data: " + dataStr);
+
     selectMenu(menu, dataStr);
 
     flagRadioAvailable = false;
