@@ -343,7 +343,7 @@ void loop()
         lastTime = millis();
     }
 
-    if (millis() - lastClockTime >= 60000)
+    if (millis() - lastClockTime >= 1000)
     {
         clockTask();
 
