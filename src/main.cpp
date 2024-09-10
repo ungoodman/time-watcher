@@ -52,7 +52,6 @@ uint32_t lastClockTime;
 int initCountDown[COUNTDOWN_DIGITS_LENGTH] = {0, 0, 0, 0, 0};
 int timeCountDown[COUNTDOWN_DIGITS_LENGTH] = {0, 0, 0, 0, 0};
 int timeClock[CLOCK_DIGIT_LENGTH] = {0, 0, 0, 0};
-bool setupDone;
 bool flagCountDown;
 bool flagRadioAvailable;
 bool flagCountdownReset;
@@ -299,44 +298,44 @@ void listenRadio()
     }
 }
 
-void thread1(void *pvParameters)
-{
-    while (1)
-    {
-        if (setupDone)
-        {
-            listenRadio();
-        }
+// void thread1(void *pvParameters)
+// {
+//     while (1)
+//     {
+//         if (setupDone)
+//         {
+//             listenRadio();
+//         }
         
-        vTaskDelay(1000 / portTICK_PERIOD_MS); // wait 1 second
-    }
-}
+//         vTaskDelay(1000 / portTICK_PERIOD_MS); // wait 1 second
+//     }
+// }
 
-void thread2(void *pvParameters)
-{
-    while (1)
-    {
-        if (setupDone)
-        {
-            countdownTask();
-        }
+// void thread2(void *pvParameters)
+// {
+//     while (1)
+//     {
+//         if (setupDone)
+//         {
+//             countdownTask();
+//         }
 
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }
-}
+//         vTaskDelay(1000 / portTICK_PERIOD_MS);
+//     }
+// }
 
-void thread3(void *pvParameters)
-{
-    while (1)
-    {
-        if (setupDone)
-        {
-            clockTask();
-        }
+// void thread3(void *pvParameters)
+// {
+//     while (1)
+//     {
+//         if (setupDone)
+//         {
+//             clockTask();
+//         }
 
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }
-}
+//         vTaskDelay(1000 / portTICK_PERIOD_MS);
+//     }
+// }
 
 void setup()
 {
@@ -376,8 +375,6 @@ void setup()
     Serial.println("program start");
 
     delay(2000);
-
-    setupDone = true;
 }
 
 int count;
@@ -393,19 +390,12 @@ void loop()
         lastTime = millis();
     }
 
-    if (millis() - lastClockTime >= 1000)
+    if (millis() - lastClockTime >= 5000)
     {
         // clockTask();
 
         for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
             writeClockSegment(ledDigitBytes[5]);
-
-        count++;
-
-        if (count >= 9)
-        {
-            count = 0;
-        }
         
         lastClockTime = millis();
     }
