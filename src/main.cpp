@@ -335,18 +335,17 @@ void loop()
 {
     listenRadio();
 
-    if (millis() - lastTime >= 1000)
+    // if (millis() - lastTime >= 1000)
+    // {
+    //     countdownTask();
+
+    //     lastTime = millis();
+    // }
+
+    if (millis() - lastClockTime >= 1000)
     {
-        countdownTask();
         clockTask();
 
-        lastTime = millis();
+        lastClockTime = millis();
     }
-
-    // if (millis() - lastClockTime >= 1000)
-    // {
-    //     clockTask();
-
-    //     lastClockTime = millis();
-    // }
 }
