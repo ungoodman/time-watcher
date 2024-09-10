@@ -364,7 +364,7 @@ void setup()
 
     delay(5000);
 
-    radioSetup();
+    // radioSetup();
 
     for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
         writeClockSegment(ledDigitBytes[0]);
@@ -380,21 +380,33 @@ void setup()
     setupDone = true;
 }
 
+int count;
+
 void loop()
 {
     listenRadio();
 
-    // if (millis() - lastTime >= 1000)
-    // {
-    //     countdownTask();
+    if (millis() - lastTime >= 1000)
+    {
+        countdownTask();
 
-    //     lastTime = millis();
-    // }
+        lastTime = millis();
+    }
 
     if (millis() - lastClockTime >= 1000)
     {
-        clockTask();
+        // clockTask();
 
+        for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
+            writeClockSegment(ledDigitBytes[count]);
+
+        count++;
+
+        if (count >= 9)
+        {
+            count = 0;
+        }
+        
         lastClockTime = millis();
     }
 }
