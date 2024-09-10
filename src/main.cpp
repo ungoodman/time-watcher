@@ -394,7 +394,7 @@ void loop()
     {
         // clockTask();
 
-        for (int i = CLOCK_DIGIT_LENGTH; i >= 0; i--)
+        for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
             writeClockSegment(ledDigitBytes[i]);
         
         lastClockTime = millis();
