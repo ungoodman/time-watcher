@@ -349,9 +349,9 @@ void setup()
 
     attachInterrupt(digitalPinToInterrupt(IRQ_PIN), isr_function, FALLING);
 
-    xTaskCreate(thread1, "Thread 1", 2048, NULL, 1, NULL);
-    xTaskCreate(thread2, "Thread 2", 2048, NULL, 1, NULL);
-    xTaskCreate(thread3, "Thread 3", 2048, NULL, 1, NULL);
+    // xTaskCreate(thread1, "Thread 1", 2048, NULL, 1, NULL);
+    // xTaskCreate(thread2, "Thread 2", 2048, NULL, 1, NULL);
+    // xTaskCreate(thread3, "Thread 3", 2048, NULL, 1, NULL);
 
     Serial.begin(SERIAL_BAUD_RATE);
     Serial.println();
