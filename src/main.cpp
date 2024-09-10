@@ -356,47 +356,47 @@ void setup()
     Serial.println();
 
     for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
-        writeClockSegment(ledDigitBytes[i]);
+        writeClockSegment(ledDigitBytes[6]);
 
     for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
         writeCountdownSegment(ledDigitBytes[i]);
 
-    delay(5000);
+    // delay(5000);
 
     // radioSetup();
 
-    for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
-        writeClockSegment(ledDigitBytes[0]);
+    // for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
+    //     writeClockSegment(ledDigitBytes[0]);
 
-    for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
-        writeCountdownSegment(ledDigitBytes[0]);
+    // for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
+    //     writeCountdownSegment(ledDigitBytes[0]);
 
     Serial.println("program setup: done");
     Serial.println("program start");
 
-    delay(2000);
+    // delay(2000);
 }
 
 int count;
 
 void loop()
 {
-    listenRadio();
+    // listenRadio();
 
-    if (millis() - lastTime >= 1000)
-    {
-        countdownTask();
+    // if (millis() - lastTime >= 1000)
+    // {
+    //     countdownTask();
 
-        lastTime = millis();
-    }
+    //     lastTime = millis();
+    // }
 
-    if (millis() - lastClockTime >= 5000)
-    {
-        // clockTask();
+    // if (millis() - lastClockTime >= 5000)
+    // {
+    //     // clockTask();
 
-        for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
-            writeClockSegment(ledDigitBytes[5]);
+    //     for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
+    //         writeClockSegment(ledDigitBytes[5]);
         
-        lastClockTime = millis();
-    }
+    //     lastClockTime = millis();
+    // }
 }
