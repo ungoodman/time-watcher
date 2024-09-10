@@ -1,6 +1,9 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <RF24.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+
 #pragma GCC optimize("O3") // code optimisation controls - "O2" & "O3" code performance, "Os" code size
 
 #define COUNTDOWN_DIGITS_LENGTH 5
@@ -49,6 +52,7 @@ uint32_t lastClockTime;
 int initCountDown[COUNTDOWN_DIGITS_LENGTH] = {0, 0, 0, 0, 0};
 int timeCountDown[COUNTDOWN_DIGITS_LENGTH] = {0, 0, 0, 0, 0};
 int timeClock[CLOCK_DIGIT_LENGTH] = {0, 0, 0, 0};
+bool setupDone;
 bool flagCountDown;
 bool flagRadioAvailable;
 bool flagCountdownReset;
@@ -295,6 +299,45 @@ void listenRadio()
     }
 }
 
+void thread1(void *pvParameters)
+{
+    while (1)
+    {
+        if (setupDone)
+        {
+            listenRadio();
+        }
+        
+        vTaskDelay(1000 / portTICK_PERIOD_MS); // wait 1 second
+    }
+}
+
+void thread2(void *pvParameters)
+{
+    while (1)
+    {
+        if (setupDone)
+        {
+            countdownTask();
+        }
+
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+}
+
+void thread3(void *pvParameters)
+{
+    while (1)
+    {
+        if (setupDone)
+        {
+            clockTask();
+        }
+
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+}
+
 void setup()
 {
     pinMode(CLOCK_DATA_PIN, OUTPUT);
@@ -306,18 +349,20 @@ void setup()
 
     attachInterrupt(digitalPinToInterrupt(IRQ_PIN), isr_function, FALLING);
 
+    xTaskCreate(thread1, "Thread 1", 2048, NULL, 1, NULL);
+    xTaskCreate(thread2, "Thread 2", 2048, NULL, 1, NULL);
+    xTaskCreate(thread3, "Thread 3", 2048, NULL, 1, NULL);
+
     Serial.begin(SERIAL_BAUD_RATE);
     Serial.println();
 
     for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
-    {
         writeClockSegment(ledDigitBytes[i]);
-    }
 
     for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
         writeCountdownSegment(ledDigitBytes[i]);
 
-    delay(2000);
+    delay(5000);
 
     radioSetup();
 
@@ -329,6 +374,10 @@ void setup()
 
     Serial.println("program setup: done");
     Serial.println("program start");
+
+    delay(2000);
+
+    setupDone = true;
 }
 
 void loop()
