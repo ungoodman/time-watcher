@@ -171,19 +171,19 @@ void clockTask()
         return;
     }
 
-    if (timeClock[3] >= 9)
+    if (timeClock[3] > 9)
     {
         timeClock[3] = 0;
         timeClock[2]++;
     }
 
-    if (timeClock[2] >= 5)
+    if (timeClock[2] > 5)
     {
         timeClock[2] = 0;
         timeClock[1]++;
     }
 
-    if (timeClock[1] >= 9)
+    if (timeClock[1] > 9)
     {
         timeClock[1] = 0;
         timeClock[0]++;
