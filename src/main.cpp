@@ -45,14 +45,14 @@ byte ledDigitBytes[] = {
 RF24 radio(CE_PIN, CSN_PIN);
 
 uint32_t lastTime;
-uint32_t lastTime2;
-uint32_t radioListenTime;
+uint32_t lastClockTime;
 int initCountDown[COUNTDOWN_DIGITS_LENGTH] = {0, 0, 0, 0, 0};
 int timeCountDown[COUNTDOWN_DIGITS_LENGTH] = {0, 0, 0, 0, 0};
 int timeClock[CLOCK_DIGIT_LENGTH] = {0, 0, 0, 0};
 bool flagCountDown;
-bool flagDisplayUpdate;
 bool flagRadioAvailable;
+bool flagCountdownReset;
+bool flagClockReset;
 
 void writeCountdownSegment(byte value)
 {
@@ -97,41 +97,6 @@ void isr_function()
 {
     flagRadioAvailable = true;
 }
-
-void setup()
-{
-    pinMode(CLOCK_DATA_PIN, OUTPUT);
-    pinMode(CLOCK_LATCH_PIN, OUTPUT);
-    pinMode(COUNTDOWN_DATA_PIN, OUTPUT);
-    pinMode(COUNTDOWN_LATCH_PIN, OUTPUT);
-    pinMode(CLOCK_PIN, OUTPUT);
-    pinMode(IRQ_PIN, INPUT);
-
-    attachInterrupt(digitalPinToInterrupt(IRQ_PIN), isr_function, FALLING);
-
-    Serial.begin(SERIAL_BAUD_RATE);
-    Serial.println();
-
-    for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
-    {
-        writeClockSegment(ledDigitBytes[3]);
-    }
-
-    for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
-        writeCountdownSegment(ledDigitBytes[i]);
-
-    delay(2000);
-
-    radioSetup();
-
-    for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
-        writeCountdownSegment(ledDigitBytes[0]);
-
-    Serial.println("program setup: done");
-    Serial.println("program start");
-}
-
-bool flagCountdownReset;
 
 void countdownTask()
 {
@@ -193,64 +158,51 @@ void countdownTask()
 
 void clockTask()
 {
-    // if (timeClock[3] > 9)
-    // {
-    //     timeClock[3] = 0;
-    //     timeClock[2]++;
-    // }
+    if (flagClockReset)
+    {
+        for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
+        {
+            timeCountDown[i] = initCountDown[i];
+            int index = initCountDown[i];
+            writeClockSegment(ledDigitBytes[index]);
+        }
 
-    // if (timeClock[2] > 5)
-    // {
-    //     timeClock[2] = 0;
-    //     timeClock[1]++;
-    // }
+        flagClockReset = false;
+        return;
+    }
 
-    // if (timeClock[0] == 2 && timeClock[1] == 4)
-    // {
-    //     timeClock[3] = 0;
-    //     timeClock[2] = 0;
-    //     timeClock[1] = 0;
-    //     timeClock[0] = 0;
-    // }
-
-    if (timeClock[3] == 10)
+    if (timeClock[3] >= 9)
     {
         timeClock[3] = 0;
         timeClock[2]++;
     }
 
-    if (timeClock[2] == 6)
+    if (timeClock[2] >= 5)
     {
         timeClock[2] = 0;
         timeClock[1]++;
     }
 
-    if (timeClock[1] == 10)
+    if (timeClock[1] >= 9)
     {
         timeClock[1] = 0;
         timeClock[0]++;
     }
 
-    if (timeClock[0] == 2 && timeClock[1] == 4)
+    if (timeClock[0] == 2 && timeClock[1] == 4 && timeClock[2] == 0 && timeClock[3] == 0)
     {
-        timeClock[0] = 0;
-        timeClock[1] = 0;
-        timeClock[2] = 0;
-        timeClock[3] = 0;
+        flagClockReset = true;
     }
 
-    Serial.println("Clock: " + String(timeClock[0]) + String(timeClock[1]) + String(timeClock[2]) + String(timeClock[3]));
+    Serial.println("Clock: " + String(timeClock[0]) + " " + String(timeClock[1]) + " " + String(timeClock[2]) + " " + String(timeClock[3]));
 
-    timeClock[3]++;
-}
-
-void updateDisplay()
-{
     for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
     {
-        int index = timeClock[i];
+        int index = timeCountDown[i];
         writeClockSegment(ledDigitBytes[index]);
     }
+
+    timeClock[3]++;
 }
 
 int extractMenu(String messageStr)
@@ -318,8 +270,6 @@ void selectMenu(int menu, String dataStr)
         Serial.println("Invalid Menu!");
         break;
     }
-
-    flagDisplayUpdate = true;
 }
 
 void listenRadio()
@@ -346,7 +296,38 @@ void listenRadio()
     }
 }
 
-uint32_t radioLastTime = 0;
+void setup()
+{
+    pinMode(CLOCK_DATA_PIN, OUTPUT);
+    pinMode(CLOCK_LATCH_PIN, OUTPUT);
+    pinMode(COUNTDOWN_DATA_PIN, OUTPUT);
+    pinMode(COUNTDOWN_LATCH_PIN, OUTPUT);
+    pinMode(CLOCK_PIN, OUTPUT);
+    pinMode(IRQ_PIN, INPUT);
+
+    attachInterrupt(digitalPinToInterrupt(IRQ_PIN), isr_function, FALLING);
+
+    Serial.begin(SERIAL_BAUD_RATE);
+    Serial.println();
+
+    for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
+    {
+        writeClockSegment(ledDigitBytes[i]);
+    }
+
+    for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
+        writeCountdownSegment(ledDigitBytes[i]);
+
+    delay(2000);
+
+    radioSetup();
+
+    for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
+        writeCountdownSegment(ledDigitBytes[0]);
+
+    Serial.println("program setup: done");
+    Serial.println("program start");
+}
 
 void loop()
 {
@@ -354,11 +335,15 @@ void loop()
 
     if (millis() - lastTime >= 1000)
     {
-        // clockTask();
         countdownTask();
 
-        // updateDisplay();
-
         lastTime = millis();
+    }
+
+    if (millis() - lastClockTime >= 60000)
+    {
+        clockTask();
+
+        lastClockTime = millis();
     }
 }
