@@ -338,14 +338,15 @@ void loop()
     if (millis() - lastTime >= 1000)
     {
         countdownTask();
+        clockTask();
 
         lastTime = millis();
     }
 
-    if (millis() - lastClockTime >= 1000)
-    {
-        clockTask();
+    // if (millis() - lastClockTime >= 1000)
+    // {
+    //     clockTask();
 
-        lastClockTime = millis();
-    }
+    //     lastClockTime = millis();
+    // }
 }
