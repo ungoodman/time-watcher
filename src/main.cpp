@@ -398,7 +398,7 @@ void loop()
         // clockTask();
 
         for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
-            writeClockSegment(ledDigitBytes[count]);
+            writeClockSegment(ledDigitBytes[5]);
 
         count++;
 
