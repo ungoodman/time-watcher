@@ -355,13 +355,13 @@ void setup()
     Serial.begin(SERIAL_BAUD_RATE);
     Serial.println();
 
-    for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
-        writeClockSegment(ledDigitBytes[6]);
+    // for (int i = 9; i >= 0; i--)
+    //     writeClockSegment(ledDigitBytes[6]);
 
-    for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
+    for (int i = 9; i >= 0; i--)
         writeCountdownSegment(ledDigitBytes[i]);
 
-    // delay(5000);
+    delay(5000);
 
     // radioSetup();
 
@@ -394,7 +394,7 @@ void loop()
     {
         // clockTask();
 
-        for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
+        for (int i = 9; i >= 0; i--)
             writeClockSegment(ledDigitBytes[3]);
         
         lastClockTime = millis();
