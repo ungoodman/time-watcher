@@ -390,13 +390,13 @@ void loop()
     //     lastTime = millis();
     // }
 
-    // if (millis() - lastClockTime >= 5000)
-    // {
-    //     // clockTask();
+    if (millis() - lastClockTime >= 5000)
+    {
+        // clockTask();
 
-    //     for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
-    //         writeClockSegment(ledDigitBytes[5]);
+        for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
+            writeClockSegment(ledDigitBytes[3]);
         
-    //     lastClockTime = millis();
-    // }
+        lastClockTime = millis();
+    }
 }
