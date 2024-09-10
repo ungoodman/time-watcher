@@ -162,9 +162,8 @@ void clockTask()
     {
         for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
         {
-            timeCountDown[i] = initCountDown[i];
-            int index = initCountDown[i];
-            writeClockSegment(ledDigitBytes[index]);
+            timeClock[i] = 0;
+            writeClockSegment(ledDigitBytes[0]);
         }
 
         flagClockReset = false;
@@ -198,7 +197,7 @@ void clockTask()
 
     for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
     {
-        int index = timeCountDown[i];
+        int index = timeClock[i];
         writeClockSegment(ledDigitBytes[index]);
     }
 
