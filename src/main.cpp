@@ -61,7 +61,7 @@ bool flagClockReset;
 void writeCountdownSegment(byte value)
 {
     digitalWrite(COUNTDOWN_LATCH_PIN, LOW);
-    shiftOut(COUNTDOWN_DATA_PIN, COUNTDOWN_CLOCK__PIN, LSBFIRST, value);
+    shiftOut(COUNTDOWN_DATA_PIN, COUNTDOWN_CLOCK_PIN, LSBFIRST, value);
     digitalWrite(COUNTDOWN_LATCH_PIN, HIGH);
 }
 
