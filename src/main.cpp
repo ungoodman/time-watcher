@@ -12,6 +12,7 @@
 
 #define COUNTDOWN_LATCH_PIN 32
 #define COUNTDOWN_DATA_PIN 25
+#define COUNTDOWN_CLOCK_PIN 14
 #define CLOCK_LATCH_PIN 26
 #define CLOCK_DATA_PIN 27
 #define CLOCK_PIN 33
@@ -49,9 +50,9 @@ RF24 radio(CE_PIN, CSN_PIN);
 
 uint32_t lastTime;
 uint32_t lastClockTime;
-int initCountDown[COUNTDOWN_DIGITS_LENGTH] = {0, 0, 0, 0, 0};
-int timeCountDown[COUNTDOWN_DIGITS_LENGTH] = {0, 0, 0, 0, 0};
-int timeClock[CLOCK_DIGIT_LENGTH] = {0, 0, 0, 0};
+int initCountDown[COUNTDOWN_DIGITS_LENGTH];
+int timeCountDown[COUNTDOWN_DIGITS_LENGTH];
+int timeClock[CLOCK_DIGIT_LENGTH];
 bool flagCountDown;
 bool flagRadioAvailable;
 bool flagCountdownReset;
@@ -60,7 +61,7 @@ bool flagClockReset;
 void writeCountdownSegment(byte value)
 {
     digitalWrite(COUNTDOWN_LATCH_PIN, LOW);
-    shiftOut(COUNTDOWN_DATA_PIN, CLOCK_PIN, LSBFIRST, value);
+    shiftOut(COUNTDOWN_DATA_PIN, COUNTDOWN_CLOCK__PIN, LSBFIRST, value);
     digitalWrite(COUNTDOWN_LATCH_PIN, HIGH);
 }
 
@@ -344,7 +345,11 @@ void setup()
     pinMode(COUNTDOWN_DATA_PIN, OUTPUT);
     pinMode(COUNTDOWN_LATCH_PIN, OUTPUT);
     pinMode(CLOCK_PIN, OUTPUT);
+    pinMode(COUNTDOWN_CLOCK_PIN, OUTPUT);
     pinMode(IRQ_PIN, INPUT);
+
+    digitalWrite(CLOCK_LATCH_PIN, HIGH);
+    digitalWrite(COUNTDOWN_LATCH_PIN, HIGH);
 
     attachInterrupt(digitalPinToInterrupt(IRQ_PIN), isr_function, FALLING);
 
@@ -356,7 +361,7 @@ void setup()
     Serial.println();
 
     for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
-        writeClockSegment(ledDigitBytes[6]);
+        writeClockSegment(ledDigitBytes[2]);
 
     for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
         writeCountdownSegment(ledDigitBytes[i]);
@@ -381,22 +386,27 @@ int count;
 
 void loop()
 {
-    listenRadio();
+    // listenRadio();
 
-    if (millis() - lastTime >= 1000)
-    {
-        countdownTask();
+    // if (millis() - lastTime >= 1000)
+    // {
+    //     countdownTask();
 
-        lastTime = millis();
-    }
+    //     lastTime = millis();
+    // }
 
     if (millis() - lastClockTime >= 1000)
     {
         // clockTask();
 
-        for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
-            writeClockSegment(ledDigitBytes[i]);
+        digitalWrite(CLOCK_LATCH_PIN, LOW);
         
+        for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--) {
+            shiftOut(CLOCK_DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[2]);        
+        }
+
+        digitalWrite(CLOCK_LATCH_PIN, HIGH);
+
         lastClockTime = millis();
     }
 }
