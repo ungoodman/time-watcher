@@ -1,14 +1,14 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <RF24.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
 
 #pragma GCC optimize("O3") // code optimisation controls - "O2" & "O3" code performance, "Os" code size
 
 #define COUNTDOWN_DIGITS_LENGTH 5
 #define CLOCK_DIGIT_LENGTH 4
 #define SERIAL_BAUD_RATE 115200
+#define SHIFTOUT_FREQ 50000
+#define BIT_ORDER LSBFIRST
 
 #define COUNTDOWN_LATCH_PIN 32
 #define COUNTDOWN_DATA_PIN 25
@@ -58,33 +58,63 @@ bool flagRadioAvailable;
 bool flagCountdownReset;
 bool flagClockReset;
 
-void writeCountdownSegment(byte value)
+void shiftoutFreq(int dataPin, int clockPin, byte val)
 {
-    digitalWrite(COUNTDOWN_LATCH_PIN, LOW);
-    shiftOut(COUNTDOWN_DATA_PIN, COUNTDOWN_CLOCK_PIN, LSBFIRST, value);
-    digitalWrite(COUNTDOWN_LATCH_PIN, HIGH);
+    // Calculate the delay based on the desired frequency
+    unsigned long clockDelay = 500000 / SHIFTOUT_FREQ; // 500,000 = 1 second in microseconds divided by 2 (for the half period)
+
+    for (int i = 0; i < 8; i++)
+    {
+        // Check if bitOrder is LSBFIRST or MSBFIRST
+        if (BIT_ORDER == LSBFIRST)
+        {
+            digitalWrite(dataPin, !!(val & (1 << i))); // Send least significant bit first
+        }
+        else
+        {
+            digitalWrite(dataPin, !!(val & (1 << (7 - i)))); // Send most significant bit first
+        }
+
+        // Toggle the clock pin
+        digitalWrite(clockPin, HIGH);  // Set clock pin HIGH
+        delayMicroseconds(clockDelay); // Wait for the high duration of the clock
+
+        digitalWrite(dataPin, LOW);   // Set data pin LOW
+        digitalWrite(clockPin, LOW);   // Set clock pin LOW
+        delayMicroseconds(clockDelay); // Wait for the low duration of the clock
+    }
 }
 
-void writeClockSegment(byte value)
+void multiShiftout(int dataPin, int clockPin, int latchPin, int registerSize, int vals[])
 {
-    digitalWrite(CLOCK_LATCH_PIN, LOW);
-    shiftOut(CLOCK_DATA_PIN, CLOCK_PIN, LSBFIRST, value);
-    digitalWrite(CLOCK_LATCH_PIN, HIGH);
+    digitalWrite(latchPin, LOW);
+
+    for (int i = registerSize - 1; i >= 0; i--){
+        Serial.println(vals[i]);
+        byte val = ledDigitBytes[vals[i]];
+        shiftoutFreq(dataPin, clockPin, val);
+    }
+
+    digitalWrite(latchPin, HIGH);
+}
+
+void countdownPrint(int data[])
+{
+    multiShiftout(COUNTDOWN_DATA_PIN, COUNTDOWN_CLOCK_PIN, COUNTDOWN_LATCH_PIN, COUNTDOWN_DIGITS_LENGTH, data);
+}
+
+void clockPrint(int data[])
+{
+    multiShiftout(CLOCK_DATA_PIN, CLOCK_PIN, CLOCK_LATCH_PIN, CLOCK_DIGIT_LENGTH, data);
 }
 
 void radioSetup()
 {
     if (!radio.begin())
     {
-        for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
-        {
-            writeCountdownSegment(ledDigitBytes[9]);
-        }
-
-        for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
-        {
-            writeClockSegment(ledDigitBytes[9]);
-        }
+        int radioErrors[COUNTDOWN_DIGITS_LENGTH] = {9, 9, 9, 9, 9};
+        countdownPrint(radioErrors);
+        clockPrint(radioErrors);
 
         Serial.println(F("radio hardware is not responding!"));
         while (true)
@@ -106,12 +136,10 @@ void countdownTask()
 {
     if (flagCountdownReset)
     {
-        for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
-        {
-            timeCountDown[i] = initCountDown[i];
-            int index = initCountDown[i];
-            writeCountdownSegment(ledDigitBytes[index]);
-        }
+        int zeros[COUNTDOWN_DIGITS_LENGTH] = {0, 0, 0, 0, 0};
+        countdownPrint(zeros);
+
+        memcpy(initCountDown, timeCountDown, sizeof(timeCountDown));
 
         flagCountdownReset = false;
         return;
@@ -151,11 +179,7 @@ void countdownTask()
 
     Serial.println("Countdown: " + String(timeCountDown[0]) + " " + String(timeCountDown[1]) + " " + String(timeCountDown[2]) + " " + String(timeCountDown[3]) + " " + String(timeCountDown[4]) + " ");
 
-    for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
-    {
-        int index = timeCountDown[i];
-        writeCountdownSegment(ledDigitBytes[index]);
-    }
+    countdownPrint(timeCountDown);
 
     timeCountDown[4]--;
 }
@@ -164,11 +188,8 @@ void clockTask()
 {
     if (flagClockReset)
     {
-        for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
-        {
-            timeClock[i] = 0;
-            writeClockSegment(ledDigitBytes[0]);
-        }
+        int zeros[CLOCK_DIGIT_LENGTH];
+        clockPrint(zeros);
 
         flagClockReset = false;
         return;
@@ -199,11 +220,7 @@ void clockTask()
 
     Serial.println("Clock: " + String(timeClock[0]) + " " + String(timeClock[1]) + " " + String(timeClock[2]) + " " + String(timeClock[3]));
 
-    for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
-    {
-        int index = timeClock[i];
-        writeClockSegment(ledDigitBytes[index]);
-    }
+    clockPrint(timeClock);
 
     timeClock[3]++;
 }
@@ -232,11 +249,7 @@ void selectMenu(int menu, String dataStr)
             initCountDown[i] = dataStr[i] - '0';
         }
 
-        for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
-        {
-            int index = timeCountDown[i];
-            writeCountdownSegment(ledDigitBytes[index]);
-        }
+        countdownPrint(timeCountDown);
 
         Serial.println("Countdown Set: " + dataStr);
         break;
@@ -260,10 +273,7 @@ void selectMenu(int menu, String dataStr)
     }
     case 4: // Countdown Reset Menu
     {
-        for (int i = 0; i < sizeof(timeCountDown); i++)
-        {
-            timeCountDown[i] = initCountDown[i];
-        }
+        memcpy(initCountDown, timeCountDown, sizeof(timeCountDown));
 
         flagCountDown = false;
         Serial.println("Countdown Reset!");
@@ -299,113 +309,59 @@ void listenRadio()
     }
 }
 
-// void thread1(void *pvParameters)
-// {
-//     while (1)
-//     {
-//         if (setupDone)
-//         {
-//             listenRadio();
-//         }
-        
-//         vTaskDelay(1000 / portTICK_PERIOD_MS); // wait 1 second
-//     }
-// }
-
-// void thread2(void *pvParameters)
-// {
-//     while (1)
-//     {
-//         if (setupDone)
-//         {
-//             countdownTask();
-//         }
-
-//         vTaskDelay(1000 / portTICK_PERIOD_MS);
-//     }
-// }
-
-// void thread3(void *pvParameters)
-// {
-//     while (1)
-//     {
-//         if (setupDone)
-//         {
-//             clockTask();
-//         }
-
-//         vTaskDelay(1000 / portTICK_PERIOD_MS);
-//     }
-// }
-
 void setup()
 {
     pinMode(CLOCK_DATA_PIN, OUTPUT);
     pinMode(CLOCK_LATCH_PIN, OUTPUT);
+    pinMode(CLOCK_PIN, OUTPUT);
     pinMode(COUNTDOWN_DATA_PIN, OUTPUT);
     pinMode(COUNTDOWN_LATCH_PIN, OUTPUT);
-    pinMode(CLOCK_PIN, OUTPUT);
     pinMode(COUNTDOWN_CLOCK_PIN, OUTPUT);
     pinMode(IRQ_PIN, INPUT);
 
-    digitalWrite(CLOCK_LATCH_PIN, HIGH);
-    digitalWrite(COUNTDOWN_LATCH_PIN, HIGH);
-
     attachInterrupt(digitalPinToInterrupt(IRQ_PIN), isr_function, FALLING);
-
-    // xTaskCreate(thread1, "Thread 1", 2048, NULL, 1, NULL);
-    // xTaskCreate(thread2, "Thread 2", 2048, NULL, 1, NULL);
-    // xTaskCreate(thread3, "Thread 3", 2048, NULL, 1, NULL);
 
     Serial.begin(SERIAL_BAUD_RATE);
     Serial.println();
 
-    for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
-        writeClockSegment(ledDigitBytes[2]);
-
-    for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
-        writeCountdownSegment(ledDigitBytes[i]);
-
-    delay(5000);
-
     radioSetup();
 
-    for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--)
-        writeClockSegment(ledDigitBytes[0]);
-
-    for (int i = COUNTDOWN_DIGITS_LENGTH - 1; i >= 0; i--)
-        writeCountdownSegment(ledDigitBytes[0]);
+    // Reset LEDs start
+    int zeroByte[COUNTDOWN_DIGITS_LENGTH];
+    clockPrint(zeroByte);
+    countdownPrint(zeroByte);
+    // Reset LEDs end
 
     Serial.println("program setup: done");
     Serial.println("program start");
 
-    delay(2000);
+    delay(1000);
 }
 
 int count;
 
 void loop()
 {
-    // listenRadio();
+    listenRadio();
 
-    // if (millis() - lastTime >= 1000)
-    // {
-    //     countdownTask();
+    if (millis() - lastTime >= 1000)
+    {
+        countdownTask();
 
-    //     lastTime = millis();
-    // }
+        lastTime = millis();
+    }
 
     if (millis() - lastClockTime >= 1000)
     {
         // clockTask();
 
-        digitalWrite(CLOCK_LATCH_PIN, LOW);
-        
-        for (int i = CLOCK_DIGIT_LENGTH - 1; i >= 0; i--) {
-            shiftOut(CLOCK_DATA_PIN, CLOCK_PIN, LSBFIRST, ledDigitBytes[2]);        
-        }
+        if (count >= 10)
+            count = 0;
 
-        digitalWrite(CLOCK_LATCH_PIN, HIGH);
+        int data[] = { count, count, count, count };
+        clockPrint(data);
+
+        count++;
 
         lastClockTime = millis();
     }
