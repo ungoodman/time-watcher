@@ -358,7 +358,8 @@ void loop()
         if (count >= 10)
             count = 0;
 
-        int data[] = { count, count, count, count };
+        int data[CLOCK_DIGIT_LENGTH];
+        memset(data, count, sizeof(data));
         clockPrint(data);
 
         count++;
