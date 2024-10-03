@@ -137,10 +137,10 @@ void countdownTask()
 {
     if (flagCountdownReset)
     {
-        int zeros[COUNTDOWN_DIGITS_LENGTH] = {0, 0, 0, 0, 0};
-        countdownPrint(zeros);
-
-        memcpy(initCountDown, timeCountDown, sizeof(timeCountDown));
+        int zeros[COUNTDOWN_DIGITS_LENGTH];
+        memset(initCountDown, 0, COUNTDOWN_DIGITS_LENGTH);
+        memset(timeCountDown, 0, COUNTDOWN_DIGITS_LENGTH);
+        countdownPrint(initCountDown);
 
         flagCountdownReset = false;
         return;
