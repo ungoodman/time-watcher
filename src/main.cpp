@@ -348,6 +348,10 @@ void loop()
     {
         countdownTask();
 
+        int data[CLOCK_DIGIT_LENGTH];
+        memset(data, 9, sizeof(data));
+        countdownPrint(data);
+
         lastTime = millis();
     }
 
