@@ -112,7 +112,8 @@ void radioSetup()
 {
     if (!radio.begin())
     {
-        int radioErrors[COUNTDOWN_DIGITS_LENGTH] = {9, 9, 9, 9, 9};
+        int radioErrors[COUNTDOWN_DIGITS_LENGTH];
+        memset(radioErrors, 9, COUNTDOWN_DIGITS_LENGTH);
         countdownPrint(radioErrors);
         clockPrint(radioErrors);
 
