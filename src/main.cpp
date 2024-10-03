@@ -105,7 +105,7 @@ void countdownPrint(int data[])
 
 void clockPrint(int data[])
 {
-    multiShiftout(CLOCK_DATA_PIN, CLOCK_PIN, CLOCK_LATCH_PIN, CLOCK_DIGIT_LENGTH, data);
+    multiShiftout(CLOCK_DATA_PIN, COUNTDOWN_CLOCK_PIN, CLOCK_LATCH_PIN, CLOCK_DIGIT_LENGTH, data);
 }
 
 void radioSetup()
