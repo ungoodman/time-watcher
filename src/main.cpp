@@ -100,7 +100,7 @@ void multiShiftout(int dataPin, int clockPin, int latchPin, int registerSize, in
 
 void countdownPrint(int data[])
 {
-    multiShiftout(COUNTDOWN_DATA_PIN, CLOCK_PIN, COUNTDOWN_LATCH_PIN, COUNTDOWN_DIGITS_LENGTH, data);
+    multiShiftout(COUNTDOWN_DATA_PIN, COUNTDOWN_CLOCK_PIN, COUNTDOWN_LATCH_PIN, COUNTDOWN_DIGITS_LENGTH, data);
 }
 
 void clockPrint(int data[])
