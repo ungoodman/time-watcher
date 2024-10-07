@@ -348,27 +348,12 @@ void loop()
     if (millis() - lastTime >= 1000)
     {
         countdownTask();
-
-        int data[CLOCK_DIGIT_LENGTH];
-        memset(data, 9, sizeof(data));
-        countdownPrint(data);
-
         lastTime = millis();
     }
 
     if (millis() - lastClockTime >= 1000)
     {
-        // clockTask();
-
-        if (count >= 10)
-            count = 0;
-
-        int data[CLOCK_DIGIT_LENGTH];
-        memset(data, count, sizeof(data));
-        clockPrint(data);
-
-        count++;
-
+        clockTask();
         lastClockTime = millis();
     }
 }
