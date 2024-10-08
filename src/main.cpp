@@ -7,7 +7,7 @@
 
 // Task Configuration
 #define COUNTDOWN_INTERVAL 1000
-#define CLOCK_INTERVAL 1000
+#define CLOCK_INTERVAL 60000
 
 // Serial Configuration
 #define SERIAL_BAUD_RATE 115200
