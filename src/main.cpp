@@ -185,8 +185,8 @@ void clockTask()
 {
     if (flagClockReset)
     {
-        int zeros[CLOCK_DIGIT_LENGTH];
-        clockPrint(zeros);
+        memset(timeClock, 0, CLOCK_DIGIT_LENGTH);
+        clockPrint(timeClock);
 
         flagClockReset = false;
         return;
@@ -270,9 +270,9 @@ void selectMenu(int menu, String dataStr)
     }
     case 4: // Countdown Reset Menu
     {
-        memcpy(initCountDown, timeCountDown, sizeof(timeCountDown));
-
+        flagCountdownReset = true;
         flagCountDown = false;
+        
         Serial.println("Countdown Reset!");
         break;
     }
