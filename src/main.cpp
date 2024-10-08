@@ -161,9 +161,9 @@ void countdownTask()
 {
     if (flagCountdownReset)
     {
-        // memset(initCountDown, 0, COUNTDOWN_DIGITS_LENGTH);
-        // memset(timeCountDown, 0, COUNTDOWN_DIGITS_LENGTH);
-        memcpy(timeCountDown, initCountDown, COUNTDOWN_DIGITS_LENGTH);
+        for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
+            timeCountDown[i] = initCountDown[i];
+        
         countdownPrint(initCountDown);
 
         printArray("Countdown Reset to ", timeCountDown, COUNTDOWN_DIGITS_LENGTH);
