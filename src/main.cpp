@@ -90,7 +90,6 @@ void multiShiftout(int dataPin, int clockPin, int latchPin, int registerSize, in
     digitalWrite(latchPin, LOW);
 
     for (int i = registerSize - 1; i >= 0; i--){
-        Serial.println(vals[i]);
         byte val = ledDigitBytes[vals[i]];
         shiftoutFreq(dataPin, clockPin, val);
     }
@@ -133,11 +132,26 @@ void isr_function()
     flagRadioAvailable = true;
 }
 
+void updateCountdown()
+{
+    // Decrement the last digit (seconds)
+    timeCountDown[4]--;
+
+    // Handle overflow and borrow logic for each digit
+    for (int i = 4; i >= 0; i--)
+    {
+        if (timeCountDown[i] < 0)
+        {
+            timeCountDown[i] = (i % 2 == 0) ? 9 : 5; // Use 9 for units, 5 for tens (e.g., minutes and seconds)
+            if (i > 0) timeCountDown[i - 1]--; // Decrement the next higher digit
+        }
+    }
+}
+
 void countdownTask()
 {
     if (flagCountdownReset)
     {
-        int zeros[COUNTDOWN_DIGITS_LENGTH];
         memset(initCountDown, 0, COUNTDOWN_DIGITS_LENGTH);
         memset(timeCountDown, 0, COUNTDOWN_DIGITS_LENGTH);
         countdownPrint(initCountDown);
@@ -149,28 +163,7 @@ void countdownTask()
     if (!flagCountDown)
         return;
 
-    if (timeCountDown[4] < 0)
-    {
-        timeCountDown[4] = 9;
-        timeCountDown[3]--;
-    }
-
-    if (timeCountDown[3] < 0)
-    {
-        timeCountDown[3] = 5;
-        timeCountDown[2]--;
-    }
-
-    if (timeCountDown[2] < 0)
-    {
-        timeCountDown[1] = 9;
-        timeCountDown[0]--;
-    }
-
-    if (timeCountDown[0] < 0)
-    {
-        timeCountDown[0] = 0;
-    }
+    updateCountdown();
 
     if (timeCountDown[0] == 0 && timeCountDown[1] == 0 && timeCountDown[2] == 0 && timeCountDown[3] == 0 && timeCountDown[4] == 0)
     {
@@ -178,11 +171,14 @@ void countdownTask()
         flagCountdownReset = true;
     }
 
-    Serial.println("Countdown: " + String(timeCountDown[0]) + " " + String(timeCountDown[1]) + " " + String(timeCountDown[2]) + " " + String(timeCountDown[3]) + " " + String(timeCountDown[4]) + " ");
+    Serial.print("Countdown: ");
+    for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
+    {
+        Serial.print(String(timeCountDown[i]) + " ");
+    }
+    Serial.println();
 
     countdownPrint(timeCountDown);
-
-    timeCountDown[4]--;
 }
 
 void clockTask()
