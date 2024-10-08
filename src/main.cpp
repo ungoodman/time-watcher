@@ -132,6 +132,15 @@ void isr_function()
     flagRadioAvailable = true;
 }
 
+void printArray(String title, int arr[], int size) {
+    Serial.print(title);
+    for (int i = 0; i < size; i++)
+    {
+        Serial.print(String(arr[i]) + " ");
+    }
+    Serial.println();
+}
+
 void updateCountdown()
 {
     // Decrement the last digit (seconds)
@@ -152,11 +161,12 @@ void countdownTask()
 {
     if (flagCountdownReset)
     {
-        memset(initCountDown, 0, COUNTDOWN_DIGITS_LENGTH);
-        memset(timeCountDown, 0, COUNTDOWN_DIGITS_LENGTH);
+        // memset(initCountDown, 0, COUNTDOWN_DIGITS_LENGTH);
+        // memset(timeCountDown, 0, COUNTDOWN_DIGITS_LENGTH);
+        memcpy(timeCountDown, initCountDown, COUNTDOWN_DIGITS_LENGTH);
         countdownPrint(initCountDown);
 
-        Serial.println("Countdown Reset Menu!");
+        printArray("Countdown Reset to ", timeCountDown, COUNTDOWN_DIGITS_LENGTH);
 
         flagCountdownReset = false;
         return;
@@ -173,12 +183,7 @@ void countdownTask()
         flagCountdownReset = true;
     }
 
-    Serial.print("Countdown: ");
-    for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
-    {
-        Serial.print(String(timeCountDown[i]) + " ");
-    }
-    Serial.println();
+    printArray("Countdown: ", timeCountDown, COUNTDOWN_DIGITS_LENGTH);
 
     countdownPrint(timeCountDown);
 }
