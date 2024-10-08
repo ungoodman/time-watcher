@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <RF24.h>
+#include <RtcDS1302.h>
 
 #pragma GCC optimize("O3") // code optimisation controls - "O2" & "O3" code performance, "Os" code size
 
@@ -29,6 +30,11 @@
 #define CSN_PIN 5
 #define IRQ_PIN 13
 
+// RTC Configuration
+#define RTC_IO_PIN 35
+#define RTC_SCLK_PIN 34
+#define RTC_CE_PIN 12
+
 // LED Configuration
 #define DIGIT_ZERO B11111100
 #define DIGIT_ONE B01100000
@@ -55,6 +61,9 @@ byte ledDigitBytes[] = {
     DIGIT_NINE};
 
 RF24 radio(CE_PIN, CSN_PIN);
+
+ThreeWire myWire(RTC_IO_PIN, RTC_SCLK_PIN, RTC_CE_PIN); // IO, SCLK, CE
+RtcDS1302<ThreeWire> Rtc(myWire);
 
 uint32_t lastTime;
 uint32_t lastClockTime;
@@ -113,6 +122,53 @@ void countdownPrint(int data[])
 void clockPrint(int data[])
 {
     multiShiftout(CLOCK_DATA_PIN, CLOCK_PIN, CLOCK_LATCH_PIN, CLOCK_DIGIT_LENGTH, data);
+}
+
+void rtcSetup() {
+    Rtc.Begin();
+    RtcDateTime defaultTime = RtcDateTime("Jan 01 2024", "00:00:00");
+
+    if (!Rtc.IsDateTimeValid()) 
+    {
+        // Common Causes:
+        //    1) first time you ran and the device wasn't running yet
+        //    2) the battery on the device is low or even missing
+
+        Serial.println("RTC lost confidence in the DateTime!");
+        Rtc.SetDateTime(defaultTime);
+    }
+
+    if (Rtc.GetIsWriteProtected())
+    {
+        Serial.println("RTC was write protected, enabling writing now");
+        Rtc.SetIsWriteProtected(false);
+    }
+
+    if (!Rtc.GetIsRunning())
+    {
+        Serial.println("RTC was not actively running, starting now");
+        Rtc.SetIsRunning(true);
+    }
+
+    RtcDateTime now = Rtc.GetDateTime();
+    if (now < defaultTime) 
+    {
+        Serial.println("RTC is older than compile time!  (Updating DateTime)");
+        Rtc.SetDateTime(defaultTime);
+    }
+    else if (now > defaultTime) 
+    {
+        Serial.println("RTC is newer than compile time. (this is expected)");
+    }
+    else if (now == defaultTime) 
+    {
+        Serial.println("RTC is the same as compile time! (not expected but all is fine)");
+    }
+
+    timeClock[0] = now.Hour() / 10;
+    timeClock[1] = now.Hour() % 10;
+    timeClock[2] = now.Minute() / 10;
+    timeClock[3] = now.Minute() % 10;
 }
 
 void radioSetup()
@@ -287,6 +343,12 @@ void selectMenu(int menu, String dataStr)
             timeClock[i] = dataStr[i] - '0';
         }
 
+        int hour = timeClock[0] * 10 + timeClock[1];
+        int min = timeClock[2] * 10 + timeClock[3];
+
+        RtcDateTime time = RtcDateTime(2024, 1, 1, hour, min, 0);
+        Rtc.SetDateTime(time);
+
         Serial.println("Clock Time Set: " + dataStr);
         break;
     }
@@ -352,9 +414,12 @@ void setup()
 
     radioSetup();
 
+    // RTC Setup
+    rtcSetup();
+    clockPrint(timeClock);
+
     // Reset LEDs start
     int zeroByte[COUNTDOWN_DIGITS_LENGTH] = {0, 0, 0, 0, 0};
-    clockPrint(zeroByte);
     countdownPrint(zeroByte);
     // Reset LEDs end
 
