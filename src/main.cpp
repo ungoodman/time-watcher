@@ -4,15 +4,18 @@
 
 #pragma GCC optimize("O3") // code optimisation controls - "O2" & "O3" code performance, "Os" code size
 
+// Task Configuration
 #define COUNTDOWN_INTERVAL 1000
 #define CLOCK_INTERVAL 1000
 
+// Serial Configuration
+#define SERIAL_BAUD_RATE 115200
+
+// Shift Register Configuration
 #define COUNTDOWN_DIGITS_LENGTH 5
 #define CLOCK_DIGIT_LENGTH 4
-#define SERIAL_BAUD_RATE 115200
 #define SHIFTOUT_FREQ 50000
 #define BIT_ORDER LSBFIRST
-
 #define COUNTDOWN_LATCH_PIN 32
 #define COUNTDOWN_DATA_PIN 25
 #define COUNTDOWN_CLOCK_PIN 14
@@ -20,11 +23,13 @@
 #define CLOCK_DATA_PIN 27
 #define CLOCK_PIN 33
 
+// RF24 Configuration
 #define PIPE_ADDRESS 0xE8E8F0F0E1LL
 #define CE_PIN 4
 #define CSN_PIN 5
 #define IRQ_PIN 13
 
+// LED Configuration
 #define DIGIT_ZERO B11111100
 #define DIGIT_ONE B01100000
 #define DIGIT_TWO B11011010
