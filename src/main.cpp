@@ -188,50 +188,59 @@ void countdownTask()
     countdownPrint(timeCountDown);
 }
 
+void updateClock() {
+    timeClock[3]++;  // Increment seconds (unit digit)
+
+    // Handle overflow logic for seconds and minutes
+    if (timeClock[3] > 9)  // If seconds exceed 9
+    {
+        timeClock[3] = 0;
+        timeClock[2]++;  // Increment the tens of seconds
+    }
+
+    if (timeClock[2] > 5)  // If tens of seconds exceed 5
+    {
+        timeClock[2] = 0;
+        timeClock[1]++;  // Increment the minutes (unit digit)
+    }
+
+    if (timeClock[1] > 9)  // If minutes exceed 9
+    {
+        timeClock[1] = 0;
+        timeClock[0]++;  // Increment the tens of minutes
+    }
+
+    // Handle overflow for hours (24-hour format)
+    if (timeClock[0] >= 2 && timeClock[1] >= 4)
+    {
+        flagClockReset = true;  // Reset the clock if it exceeds 24:00
+    }
+}
+
 void clockTask()
 {
     if (flagClockReset)
     {
-        memset(timeClock, 0, CLOCK_DIGIT_LENGTH);
+        for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
+            timeClock[i] = 0;
+
         clockPrint(timeClock);
+
+        printArray("Clock Reset to ", timeClock, CLOCK_DIGIT_LENGTH);
 
         flagClockReset = false;
         return;
     }
 
-    if (timeClock[3] > 9)
-    {
-        timeClock[3] = 0;
-        timeClock[2]++;
-    }
+    updateClock();
 
-    if (timeClock[2] > 5)
-    {
-        timeClock[2] = 0;
-        timeClock[1]++;
-    }
-
-    if (timeClock[1] > 9)
-    {
-        timeClock[1] = 0;
-        timeClock[0]++;
-    }
-
-    if (timeClock[0] == 2 && timeClock[1] == 4 && timeClock[2] == 0 && timeClock[3] == 0)
-    {
-        flagClockReset = true;
-    }
-
-    // Serial.print("Clock: ");
-    // for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
+    // if (timeClock[0] == 2 && timeClock[1] == 4 && timeClock[2] == 0 && timeClock[3] == 0)
     // {
-    //     Serial.print(String(timeClock[i]) + " ");
+    //     flagClockReset = true;
     // }
-    // Serial.println();
 
     clockPrint(timeClock);
-
-    timeClock[3]++;
+    printArray("Clock: ", timeClock, CLOCK_DIGIT_LENGTH);
 }
 
 int extractMenu(String messageStr)
@@ -336,7 +345,7 @@ void setup()
     radioSetup();
 
     // Reset LEDs start
-    int zeroByte[COUNTDOWN_DIGITS_LENGTH];
+    int zeroByte[COUNTDOWN_DIGITS_LENGTH] = {0, 0, 0, 0, 0};
     clockPrint(zeroByte);
     countdownPrint(zeroByte);
     // Reset LEDs end
