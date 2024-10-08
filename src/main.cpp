@@ -356,8 +356,6 @@ void setup()
     delay(1000);
 }
 
-int count;
-
 void loop()
 {
     listenRadio();
