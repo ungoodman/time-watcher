@@ -151,6 +151,7 @@ void rtcSetup() {
     }
 
     RtcDateTime now = Rtc.GetDateTime();
+    Serial.println("RTC current time: " + String(now.Hour()) + ":" + String(now.Minute()) + ":" + String(now.Second()));
     if (now < defaultTime) 
     {
         Serial.println("RTC is older than compile time!  (Updating DateTime)");
@@ -169,6 +170,8 @@ void rtcSetup() {
     timeClock[1] = now.Hour() % 10;
     timeClock[2] = now.Minute() / 10;
     timeClock[3] = now.Minute() % 10;
+
+    clockPrint(timeClock);
 }
 
 void radioSetup()
@@ -416,7 +419,6 @@ void setup()
 
     // RTC Setup
     rtcSetup();
-    clockPrint(timeClock);
 
     // Reset LEDs start
     int zeroByte[COUNTDOWN_DIGITS_LENGTH] = {0, 0, 0, 0, 0};
