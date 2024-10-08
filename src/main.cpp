@@ -31,8 +31,8 @@
 #define IRQ_PIN 13
 
 // RTC Configuration
-#define RTC_IO_PIN 35
-#define RTC_SCLK_PIN 34
+#define RTC_IO_PIN 15
+#define RTC_SCLK_PIN 2
 #define RTC_CE_PIN 12
 
 // LED Configuration
