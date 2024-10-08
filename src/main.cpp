@@ -156,6 +156,8 @@ void countdownTask()
         memset(timeCountDown, 0, COUNTDOWN_DIGITS_LENGTH);
         countdownPrint(initCountDown);
 
+        Serial.println("Countdown Reset Menu!");
+
         flagCountdownReset = false;
         return;
     }
@@ -215,7 +217,12 @@ void clockTask()
         flagClockReset = true;
     }
 
-    Serial.println("Clock: " + String(timeClock[0]) + " " + String(timeClock[1]) + " " + String(timeClock[2]) + " " + String(timeClock[3]));
+    // Serial.print("Clock: ");
+    // for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
+    // {
+    //     Serial.print(String(timeClock[i]) + " ");
+    // }
+    // Serial.println();
 
     clockPrint(timeClock);
 
@@ -272,8 +279,8 @@ void selectMenu(int menu, String dataStr)
     {
         flagCountdownReset = true;
         flagCountDown = false;
-        
-        Serial.println("Countdown Reset!");
+
+        Serial.println("Countdown Reset Menu!");
         break;
     }
     default:
