@@ -4,6 +4,9 @@
 
 #pragma GCC optimize("O3") // code optimisation controls - "O2" & "O3" code performance, "Os" code size
 
+#define COUNTDOWN_INTERVAL 1000
+#define CLOCK_INTERVAL 1000
+
 #define COUNTDOWN_DIGITS_LENGTH 5
 #define CLOCK_DIGIT_LENGTH 4
 #define SERIAL_BAUD_RATE 115200
@@ -360,13 +363,13 @@ void loop()
 {
     listenRadio();
 
-    if (millis() - lastTime >= 1000)
+    if (millis() - lastTime >= COUNTDOWN_INTERVAL)
     {
         countdownTask();
         lastTime = millis();
     }
 
-    if (millis() - lastClockTime >= 1000)
+    if (millis() - lastClockTime >= CLOCK_INTERVAL)
     {
         clockTask();
         lastClockTime = millis();
