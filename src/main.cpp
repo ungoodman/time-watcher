@@ -282,6 +282,12 @@ void updateClock() {
     {
         flagClockReset = true;  // Reset the clock if it exceeds 24:00
     }
+
+    int hour = timeClock[0] * 10 + timeClock[1];
+    int min = timeClock[2] * 10 + timeClock[3];
+
+    RtcDateTime time = RtcDateTime(2024, 1, 1, hour, min, 0);
+    Rtc.SetDateTime(time);
 }
 
 void clockTask()
