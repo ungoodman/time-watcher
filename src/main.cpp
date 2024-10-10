@@ -281,6 +281,11 @@ void updateClock() {
     if (timeClock[0] >= 2 && timeClock[1] >= 4)
     {
         flagClockReset = true;  // Reset the clock if it exceeds 24:00
+
+        RtcDateTime time = RtcDateTime(2024, 1, 1, 0, 0, 0);
+        Rtc.SetDateTime(time);
+
+        return;
     }
 
     int hour = timeClock[0] * 10 + timeClock[1];
@@ -292,6 +297,8 @@ void updateClock() {
 
 void clockTask()
 {
+    updateClock();
+
     if (flagClockReset)
     {
         for (int i = 0; i < CLOCK_DIGIT_LENGTH; i++)
@@ -304,8 +311,6 @@ void clockTask()
         flagClockReset = false;
         return;
     }
-
-    updateClock();
 
     // if (timeClock[0] == 2 && timeClock[1] == 4 && timeClock[2] == 0 && timeClock[3] == 0)
     // {
