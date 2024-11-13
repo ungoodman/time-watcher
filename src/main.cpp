@@ -47,27 +47,18 @@ void selectMenu(char buttonValue)
 
     switch (buttonValue)
     {
+    // SET TIMER
     case 'A':
     {
         menu = 1;
         return;
     }
+    // SET CLOCK
     case 'B':
     {
         menu = 2;
         return;
     }
-    // SET
-    // case 'C':
-    // {
-    //     flagMenuChange = true;
-
-    //     if (inputTime.length() >= MAX_DIGITS_INPUT)
-    //     {
-    //         flagSendCmd = true;
-    //     }
-    //     return;
-    // }
     // SET ZERO
     case 'D':
     {
@@ -153,6 +144,14 @@ void showClockMenu()
     latestValue = inputTime;
 }
 
+void showRunOrPauseMenu() {
+    if (pass) {
+        lcd.print("   TIMER RUN   ");
+    } else {
+        lcd.print("  TIMER PAUSE  ");
+    }
+}
+
 void showRunMenu()
 {
     lcd.print("   TIMER RUN   ");
@@ -161,6 +160,11 @@ void showRunMenu()
 void showPauseMenu()
 {
     lcd.print("  TIMER PAUSE  ");
+}
+
+void showSetZeroMenu()
+{
+    lcd.print("  TIMER SET 0  ");
 }
 
 void showResetMenu()
@@ -191,10 +195,10 @@ void showMenu()
         showClockMenu();
         return;
     case 3:
-        showRunMenu();
+        showRunOrPauseMenu();
         return;
     case 4:
-        showPauseMenu();
+        showSetZeroMenu();
         return;
     case 5:
         showResetMenu();
@@ -213,7 +217,6 @@ void readKeypad()
         char keypadValue = keyPad.getChar();
 
         lockKeypad = true;
-        // Serial.println("Keypad Lock: " + String(lockKeypad));
 
         checkNumberValue(keypadValue);
         checkConfirm(keypadValue);
@@ -223,8 +226,6 @@ void readKeypad()
     if (pressed == false && lockKeypad == true)
     {
         lockKeypad = false;
-        // Serial.println("Keypad Lock: " + String(lockKeypad));
-        // Serial.println("Keypad RELEASE!");
     }
 }
 
