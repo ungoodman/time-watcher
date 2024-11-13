@@ -12,8 +12,8 @@
 #define ROWS 4                // LCD rows
 #define LCD_SPACE_SYMBOL 0x20 // space symbol from LCD ROM, see p.9 of GDM2004D datasheet
 #define PIPE_ADDRESS 0xE8E8F0F0E1LL
-#define RUN_BUTTON 25
-#define PAUSE_BUTTON 26
+#define RUN_BUTTON 32
+#define PAUSE_BUTTON 33
 
 char keymap[19] = "123A456B789C*0#DNF"; //  เป็นคำสั่งใช้ตัวแปร char โดยชื่อ keymap เป็นตัวเก็บจำนวนไว้ที่ตัวแปร ของ array
 
