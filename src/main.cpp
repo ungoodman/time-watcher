@@ -229,9 +229,9 @@ void countdownTask()
     if (flagCountdownReset)
     {
         for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
-            timeCountDown[i] = initCountDown[i];
+            timeCountDown[i] = 0;
         
-        countdownPrint(initCountDown);
+        countdownPrint(timeCountDown);
 
         printArray("Countdown Reset to ", timeCountDown, COUNTDOWN_DIGITS_LENGTH);
 
