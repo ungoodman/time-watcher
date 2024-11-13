@@ -353,7 +353,7 @@ void loop()
 {
     if (millis() - menuMillis >= 200)
     {
-        showPauseMenu();
+        showMenu();
         menuMillis = millis();
     }
 
