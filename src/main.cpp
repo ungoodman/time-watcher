@@ -36,7 +36,7 @@ LiquidCrystal_I2C lcd(PCF8574_ADDR_A21_A11_A01, 4, 5, 6, 16, 11, 12, 13, 14, POS
 
 void selectMenu(char buttonValue)
 {
-    if (buttonValue < 'A' || buttonValue > 'Z' || buttonValue == '*' || buttonValue == 'C')
+    if (((buttonValue < 'A' || buttonValue > 'Z') && buttonValue != '#') || buttonValue == '*' || buttonValue == 'C')
     {
         return;
     }
