@@ -99,7 +99,7 @@ void selectMenu(char buttonValue)
 
 void checkNumberValue(char buttonValue)
 {
-    if (buttonValue < '0' || buttonValue > '9' || menu < 1 || menu > 2 || flagCommit)
+    if (buttonValue < '0' || buttonValue > '9' || menu < 1 || menu > 2)
         return;
 
     if (inputTime.length() >= MAX_DIGITS_INPUT)
