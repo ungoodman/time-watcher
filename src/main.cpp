@@ -241,6 +241,8 @@ void sendRadio()
     {
         savedTime = inputTime;
         dataToSend += inputTime;
+        Serial.println("InputTime: " + inputTime);
+        Serial.println("SavedTime: " + savedTime);
     }
     else if (menu == 2)
         dataToSend += inputTime;
@@ -251,6 +253,7 @@ void sendRadio()
     else if (menu == 5)
     {
         dataToSend = "1#" +  savedTime;
+        Serial.println("SavedTime: " + savedTime);
     }
 
     char byteToSend[stringLength];
