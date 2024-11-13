@@ -36,7 +36,7 @@ LiquidCrystal_I2C lcd(PCF8574_ADDR_A21_A11_A01, 4, 5, 6, 16, 11, 12, 13, 14, POS
 
 void selectMenu(char buttonValue)
 {
-    if (buttonValue < 'A' || buttonValue > 'D' || buttonValue == '*')
+    if (buttonValue < 'A' || buttonValue > 'Z' || buttonValue == '*' || buttonValue == 'C')
     {
         return;
     }
@@ -58,11 +58,16 @@ void selectMenu(char buttonValue)
         return;
     }
     // SET
-    case 'C':
-    {
-        flagSendCmd = true;
-        return;
-    }
+    // case 'C':
+    // {
+    //     flagMenuChange = true;
+
+    //     if (inputTime.length() >= MAX_DIGITS_INPUT)
+    //     {
+    //         flagSendCmd = true;
+    //     }
+    //     return;
+    // }
     // SET ZERO
     case 'D':
     {
@@ -108,11 +113,12 @@ void checkNumberValue(char buttonValue)
     }
 
     inputTime += buttonValue;
+    Serial.println("InputTime: " + inputTime);
 }
 
 void checkConfirm(char buttonValue)
 {
-    if (buttonValue != '#')
+    if (buttonValue != 'C')
         return;
 
     flagMenuChange = true;
@@ -252,7 +258,7 @@ void sendRadio()
         dataToSend += "00000";
     else if (menu == 5)
     {
-        dataToSend = "1#" +  savedTime;
+        dataToSend = "1#" + savedTime;
         Serial.println("SavedTime: " + savedTime);
     }
 
