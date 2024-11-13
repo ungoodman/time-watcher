@@ -317,12 +317,12 @@ void lcdSetup()
 
 void readRunButton()
 {
-    selectMenu('C');
+    selectMenu('R');
 }
 
 void readPauseButton()
 {
-    selectMenu('D');
+    selectMenu('P');
 }
 
 void setup()
