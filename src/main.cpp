@@ -95,6 +95,7 @@ void selectMenu(char buttonValue)
     case '#':
     {
         menu = 5;
+        flagSendCmd = true;
         return;
     }
     default:
