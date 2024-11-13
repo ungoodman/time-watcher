@@ -12,9 +12,12 @@
 #define ROWS 4                // LCD rows
 #define LCD_SPACE_SYMBOL 0x20 // space symbol from LCD ROM, see p.9 of GDM2004D datasheet
 #define PIPE_ADDRESS 0xE8E8F0F0E1LL
+#define RUN_BUTTON 25
+#define PAUSE_BUTTON 26
 
 char keymap[19] = "123A456B789C*0#DNF"; //  เป็นคำสั่งใช้ตัวแปร char โดยชื่อ keymap เป็นตัวเก็บจำนวนไว้ที่ตัวแปร ของ array
 
+String savedTime = "";
 String inputTime = ""; //  ตัวแปร  ค่าล่าสุด
 String latestValue = "";
 bool lockKeypad; //  ตัวแปร  ล็อคปุ่มกด
@@ -23,6 +26,9 @@ bool pass;
 bool flagMenuChange;
 bool flagCommit;
 bool flagSendCmd;
+int32_t menuMillis = 0;
+int32_t keypadMillis = 0;
+int32_t radioMillis = 0;
 
 RF24 radio(4, 5);
 I2CKeyPad keyPad(0x20);
@@ -30,7 +36,7 @@ LiquidCrystal_I2C lcd(PCF8574_ADDR_A21_A11_A01, 4, 5, 6, 16, 11, 12, 13, 14, POS
 
 void selectMenu(char buttonValue)
 {
-    if (buttonValue < 'A' || buttonValue > 'D')
+    if (buttonValue < 'A' || buttonValue > 'D' || buttonValue == '*')
     {
         return;
     }
@@ -38,7 +44,6 @@ void selectMenu(char buttonValue)
     flagMenuChange = true;
     inputTime = "";
     latestValue = "";
-    flagCommit = false;
 
     switch (buttonValue)
     {
@@ -52,16 +57,39 @@ void selectMenu(char buttonValue)
         menu = 2;
         return;
     }
+    // SET
     case 'C':
     {
-        menu = 3;
-        pass = !pass;
         flagSendCmd = true;
         return;
     }
+    // SET ZERO
     case 'D':
     {
         menu = 4;
+        flagSendCmd = true;
+        return;
+    }
+    // RUN
+    case 'R':
+    {
+        menu = 3;
+        pass = true;
+        flagSendCmd = true;
+        return;
+    }
+    // PAUSE
+    case 'P':
+    {
+        menu = 3;
+        pass = false;
+        flagSendCmd = true;
+        return;
+    }
+    // RESET
+    case '#':
+    {
+        menu = 5;
         return;
     }
     default:
@@ -84,28 +112,14 @@ void checkNumberValue(char buttonValue)
 
 void checkConfirm(char buttonValue)
 {
-    if (buttonValue != '#' && buttonValue != '*')
+    if (buttonValue != '#')
         return;
 
-    if (buttonValue == '#')
+    flagMenuChange = true;
+
+    if (inputTime.length() >= MAX_DIGITS_INPUT)
     {
-        flagMenuChange = true;
-
-        if ((flagCommit && inputTime.length() >= MAX_DIGITS_INPUT) || menu == 4)
-        {
-            flagSendCmd = true;
-            flagCommit = false;
-            return;
-        }
-
-        if (inputTime.length() >= MAX_DIGITS_INPUT)
-            flagCommit = true;
-    }
-
-    if (buttonValue == '*')
-    {
-        inputTime = "";
-        flagCommit = false;
+        flagSendCmd = true;
     }
 }
 
@@ -113,67 +127,38 @@ void showHomeMenu()
 {
     lcd.print("  CLOCK REMOTE  ");
     lcd.setCursor(0, 1);
-    lcd.print("PRESS MENU A - D");
+    lcd.print("PRESS MENU A | B");
 }
 
 void showTimerMenu()
 {
-    if (flagCommit)
-    {
-        lcd.print(" PRESS # TO RUN ");
-        lcd.setCursor(0, 1);
-        lcd.print("     " + inputTime + "      ");
-        latestValue = inputTime;
-        return;
-    }
-
-    lcd.print("TIMER    " + inputTime);
+    lcd.print("   SET TIMER   ");
+    lcd.setCursor(0, 1);
+    lcd.print("     " + inputTime + "      ");
     latestValue = inputTime;
 }
 
 void showClockMenu()
 {
-    if (flagCommit)
-    {
-        lcd.print(" PRESS # TO SET ");
-        lcd.setCursor(0, 1);
-        lcd.print("     " + inputTime + "      ");
-        Serial.println("LCD Display: " + inputTime);
-        latestValue = inputTime;
-        return;
-    }
-
-    lcd.print("CLOCK    " + inputTime);
-    Serial.println("Menu 2");
+    lcd.print("   SET CLOCK   ");
+    lcd.setCursor(0, 1);
+    lcd.print("     " + inputTime + "      ");
     latestValue = inputTime;
+}
+
+void showRunMenu()
+{
+    lcd.print("   TIMER RUN   ");
 }
 
 void showPauseMenu()
 {
-    if (pass)
-    {
-        lcd.print("   STOP TIMER   ");
-        return;
-    }
-
-    lcd.print("   RUN  TIMER   ");
+    lcd.print("  TIMER PAUSE  ");
 }
 
 void showResetMenu()
 {
-    if (flagCommit)
-    {
-        lcd.print("   RESET DONE   ");
-        menu = 0;
-        delay(3000);
-        latestValue = inputTime;
-        return;
-    }
-
-    lcd.print("    PRESS  #    ");
-    lcd.setCursor(0, 1);
-    lcd.print(" TO RESET TIMER ");
-    latestValue = inputTime;
+    lcd.print("  TIMER RESET  ");
 }
 
 void showMenu()
@@ -199,9 +184,12 @@ void showMenu()
         showClockMenu();
         return;
     case 3:
-        showPauseMenu();
+        showRunMenu();
         return;
     case 4:
+        showPauseMenu();
+        return;
+    case 5:
         showResetMenu();
         return;
     default:
@@ -250,12 +238,21 @@ void sendRadio()
     int stringLength = 9;
 
     String dataToSend = String(menu) + "#";
-    if (menu == 1 || menu == 2)
+    if (menu == 1)
+    {
+        savedTime = inputTime;
+        dataToSend += inputTime;
+    }
+    else if (menu == 2)
         dataToSend += inputTime;
     else if (menu == 3)
         dataToSend += "0000" + String(pass);
-    else
+    else if (menu == 4)
         dataToSend += "00000";
+    else if (menu == 5)
+    {
+        dataToSend = "1#" +  savedTime;
+    }
 
     char byteToSend[stringLength];
     dataToSend.toCharArray(byteToSend, stringLength);
@@ -273,7 +270,8 @@ void radioSetup()
     if (!radio.begin())
     {
         Serial.println("\nERROR: cannot communicate to radio.\nPlease reboot.\n");
-        while (1);
+        while (1)
+            ;
     }
     radio.openWritingPipe(PIPE_ADDRESS);
 
@@ -289,7 +287,8 @@ void keypadSetup()
     if (!keyPad.begin())
     {
         Serial.println("\nERROR: cannot communicate to keypad.\nPlease reboot.\n");
-        while (1);
+        while (1)
+            ;
     }
     keyPad.loadKeyMap(keymap);
 
@@ -314,8 +313,24 @@ void lcdSetup()
     lcd.clear();
 }
 
+void readRunButton()
+{
+    selectMenu('C');
+}
+
+void readPauseButton()
+{
+    selectMenu('D');
+}
+
 void setup()
 {
+    pinMode(RUN_BUTTON, INPUT);
+    pinMode(PAUSE_BUTTON, INPUT);
+
+    attachInterrupt(digitalPinToInterrupt(RUN_BUTTON), readRunButton, RISING);
+    attachInterrupt(digitalPinToInterrupt(PAUSE_BUTTON), readPauseButton, RISING);
+
     Wire.begin();
     Wire.setClock(400000);
     Wire.setTimeOut(1000);
@@ -336,12 +351,21 @@ void setup()
 
 void loop()
 {
-    if (millis() % 200 == 0)
-        showMenu();
+    if (millis() - menuMillis >= 200)
+    {
+        showPauseMenu();
+        menuMillis = millis();
+    }
 
-    if (millis() % 250 == 0)
+    if (millis() - keypadMillis >= 250)
+    {
         readKeypad();
-    
-    if (millis() % 300 == 0)
-        sendRadio();    
+        keypadMillis = millis();
+    }
+
+    if (millis() - radioMillis >= 300)
+    {
+        sendRadio();
+        radioMillis = millis();
+    }
 }
