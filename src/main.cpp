@@ -200,7 +200,6 @@ void showMenu()
 void readKeypad()
 {
     bool pressed = keyPad.isPressed();
-    Serial.println("Keypad pressed: " + String(pressed));
 
     if (pressed == true && lockKeypad == false)
     {
@@ -227,7 +226,7 @@ void sendRadio()
     if (!flagSendCmd)
         return;
 
-    if (menu > 4)
+    if (menu > 5)
     {
         Serial.println("Send Radio: Error");
         Serial.println("Invalid Menu Type: " + String(menu));
