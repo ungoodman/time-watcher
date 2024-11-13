@@ -368,7 +368,7 @@ void selectMenu(int menu, String dataStr)
     }
     case 3: // Countdown Pause Menu
     {
-        flagCountDown = !flagCountDown;
+        flagCountDown = dataStr.charAt(dataStr.length() - 1) == '1';
 
         Serial.println("Countdown Status: " + flagCountDown ? "Run" : "Pause");
         break;
