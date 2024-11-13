@@ -67,7 +67,6 @@ RtcDS1302<ThreeWire> Rtc(myWire);
 
 uint32_t lastTime;
 uint32_t lastClockTime;
-int initCountDown[COUNTDOWN_DIGITS_LENGTH];
 int timeCountDown[COUNTDOWN_DIGITS_LENGTH];
 int timeClock[CLOCK_DIGIT_LENGTH];
 bool flagCountDown;
@@ -342,7 +341,6 @@ void selectMenu(int menu, String dataStr)
         for (int i = 0; i < COUNTDOWN_DIGITS_LENGTH; i++)
         {
             timeCountDown[i] = dataStr[i] - '0';
-            initCountDown[i] = dataStr[i] - '0';
         }
 
         countdownPrint(timeCountDown);
