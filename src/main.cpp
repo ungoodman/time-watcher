@@ -19,6 +19,7 @@ char keymap[19] = "123A456B789C*0#DNF"; //  เป็นคำสั่งใช
 
 String savedTime = "";
 String inputTime = ""; //  ตัวแปร  ค่าล่าสุด
+String displayTime = "";
 String latestValue = "";
 bool lockKeypad; //  ตัวแปร  ล็อคปุ่มกด
 int menu;
@@ -43,6 +44,7 @@ void selectMenu(char buttonValue)
 
     flagMenuChange = true;
     inputTime = "";
+    displayTime = "";
     latestValue = "";
 
     switch (buttonValue)
@@ -102,9 +104,15 @@ void checkNumberValue(char buttonValue)
     if (inputTime.length() >= MAX_DIGITS_INPUT)
     {
         inputTime = "";
+        displayTime = "";
     }
 
     inputTime += buttonValue;
+    displayTime += buttonValue;
+
+    if (inputTime.length() == 1 || inputTime.length() == 3)
+        displayTime += ".";
+    
     Serial.println("InputTime: " + inputTime);
 }
 
@@ -132,7 +140,7 @@ void showTimerMenu()
 {
     lcd.print("   SET TIMER   ");
     lcd.setCursor(0, 1);
-    lcd.print("     " + inputTime + "      ");
+    lcd.print("     " + displayTime + "      ");
     latestValue = inputTime;
 }
 
@@ -140,7 +148,7 @@ void showClockMenu()
 {
     lcd.print("   SET CLOCK   ");
     lcd.setCursor(0, 1);
-    lcd.print("     " + inputTime + "      ");
+    lcd.print("     " + displayTime + "      ");
     latestValue = inputTime;
 }
 
