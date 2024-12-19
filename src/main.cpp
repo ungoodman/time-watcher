@@ -140,7 +140,7 @@ void showTimerMenu()
 {
     lcd.print("   SET TIMER   ");
     lcd.setCursor(0, 1);
-    lcd.print("     " + displayTime + "      ");
+    lcd.print("    " + displayTime + "   ");
     latestValue = inputTime;
 }
 
@@ -148,7 +148,7 @@ void showClockMenu()
 {
     lcd.print("   SET CLOCK   ");
     lcd.setCursor(0, 1);
-    lcd.print("     " + displayTime + "      ");
+    lcd.print("    " + displayTime + "   ");
     latestValue = inputTime;
 }
 
